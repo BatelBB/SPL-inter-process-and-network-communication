@@ -9,6 +9,8 @@ package bgu.spl.net;
  * <p>
  * You can add private fields and methods to this class as you see fit.
  */
+//we can add public methods
+	//https://www.cs.bgu.ac.il/~spl211/Assignments/Assignment_3?action=show-thread&id=02259a78b260b7e58bd05ca5232a3c8e
 public class Database {
 
 	private static class databaseSingletonHolder{

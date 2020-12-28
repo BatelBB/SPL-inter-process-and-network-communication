@@ -10,6 +10,45 @@ public class MessagingProtocolImpl implements MessagingProtocol<String> {
      */
     @Override
     public String process(String msg) {
+        if (msg.equals("ADMINREG")){
+
+        }
+        if(msg.equals("STUDENTREG")){
+
+        }
+        if (msg.equals("LOGIN")){
+
+        }
+        if (msg.equals("LOGOUT")){
+
+        }
+        if (msg.equals("COURSEREG")){
+
+        }
+        if (msg.equals("KDAMCHECK")){
+
+        }
+        if (msg.equals("COURSESTAT")){
+
+        }
+        if (msg.equals("STUDENTSTAT")){
+
+        }
+        if (msg.equals("ISREGISTERED")){
+
+        }
+        if (msg.equals("UNREGISTER")){
+
+        }
+        if (msg.equals("MYCOURSES")){
+
+        }
+        if (msg.equals("ACK")){
+
+        }
+        if (msg.equals("ERR")){
+
+        }
         return null;
     }
 

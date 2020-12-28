@@ -1,6 +1,11 @@
 package bgu.spl.net;
 
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.util.List;
+import java.util.Scanner;
+
 /**
  * Passive object representing the bgu.spl.net.Database where all courses and users are stored.
  * <p>
@@ -12,6 +17,7 @@ package bgu.spl.net;
 //we can add public methods
 	//https://www.cs.bgu.ac.il/~spl211/Assignments/Assignment_3?action=show-thread&id=02259a78b260b7e58bd05ca5232a3c8e
 public class Database {
+	private List<String[]> courses;
 
 	private static class databaseSingletonHolder{
 		private static final Database database = new Database();
@@ -32,8 +38,14 @@ public class Database {
 	 * loads the courses from the file path specified
 	 * into the bgu.spl.net.Database, returns true if successful.
 	 */
-	boolean initialize(String coursesFilePath) {
+	boolean initialize(String coursesFilePath) throws FileNotFoundException {
 		// TODO: implement
+		Scanner CoursesFile = new Scanner(new FileReader(coursesFilePath));
+		while (CoursesFile.hasNextLine()) {
+			String Course = CoursesFile.nextLine();
+			courses.add(Course.split("|"));
+		}
+		CoursesFile.close();
 		return false;
 	}
 

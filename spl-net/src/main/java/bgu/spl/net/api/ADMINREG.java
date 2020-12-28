@@ -20,4 +20,8 @@ public class ADMINREG implements MessagingProtocol<String> {
     public boolean shouldTerminate() {
         return shouldTerminate;
     }
+
+    private String createEcho(String Message){
+        return "ACK 1";
+    }
 }

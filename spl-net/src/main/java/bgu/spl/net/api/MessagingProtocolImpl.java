@@ -1,7 +1,10 @@
 package bgu.spl.net.api;
 
+import bgu.spl.net.Database;
+
 public class MessagingProtocolImpl implements MessagingProtocol<String> {
     private boolean shouldTerminate = false;
+
     /**
      * process the given message
      *
@@ -11,7 +14,7 @@ public class MessagingProtocolImpl implements MessagingProtocol<String> {
     @Override
     public String process(String msg) {
         if (msg.equals("ADMINREG")){
-
+          //  Database.getInstance().addUsers();
         }
         if(msg.equals("STUDENTREG")){
 

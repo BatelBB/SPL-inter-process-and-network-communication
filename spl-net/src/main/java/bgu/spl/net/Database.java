@@ -49,9 +49,5 @@ public class Database {
 		return false;
 	}
 
-	public void addUsers(String userName, String passcode){
-
-	}
-
 
 }

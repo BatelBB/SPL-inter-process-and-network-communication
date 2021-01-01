@@ -64,7 +64,19 @@ bool ConnectionHandler::sendBytes(const char bytes[], int bytesToWrite) {
 }
  
 bool ConnectionHandler::getLine(std::string& line) {
-    return getFrameAscii(line, '\n');
+   char ch;
+   std::vector<char> vecBytes;
+   try{
+       do{
+           if(!getBytes(&ch, 1)){
+               return false;
+           }
+           vecBytes.push_back(ch);
+       }while('\0' != ch);
+   }catch(std::exception& e){
+       std::cerr << "recv failed2 (Error: " << e.what() << ')' << std::endl;
+       return false;
+   }
 }
 
 bool ConnectionHandler::sendLine(std::string& line) {

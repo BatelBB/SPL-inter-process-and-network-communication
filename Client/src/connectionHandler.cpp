@@ -75,12 +75,15 @@ bool ConnectionHandler::getLine(std::string &line) {
                 return false;
             }
             vecBytes.push_back(ch);
+            if(opcode==13&&vecBytes.size()==4){
+                break;
+            }
             if (vecBytes.size() == 2) {
                 opcodeArr[0] = vecBytes[0];
                 opcodeArr[1] = vecBytes[1];
                 opcode = bytesToShort(opcodeArr);
             }
-        } while ('\0' != ch && opcode != 13);
+        } while ('\0' != ch || vecBytes.size()<=4);
     } catch (std::exception &e) {
         std::cerr << "recv failed2 (Error: " << e.what() << ')' << std::endl;
         return false;

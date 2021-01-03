@@ -60,13 +60,16 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<String> 
                 }
                 return popString();
 
-            } else if (opcode == 4 || opcode == 11) {
+            } else if (opcode == 4 || opcode == 11 || opcode == 12) {
                 switch (opcode) {
                     case 4: //LOGOUT
                         typeOfMessage = "LOGOUT";
                         break;
                     case 11: //MYCOURSES
                         typeOfMessage = "MYCOURSES";
+                        break;
+                    case 12: //Terminate
+                        typeOfMessage = "TERMINATE";
                         break;
                 }
                 return popString();

@@ -17,7 +17,7 @@ public class Course {
         String[] splitKdamString = splitCourse[2].replaceAll("\\[", "").replaceAll("]", "").replaceAll("\\s", "").split(",");
         int[] splitKdamInteger = new int[splitKdamString.length];
 
-        //Take the string array and cunvert it in to an Integer array
+        //Take the string array and convert it in to an Integer array
         for (int i = 0; i < splitKdamString.length; i++) {
             try {
                 splitKdamInteger[i] = Integer.parseInt(splitKdamString[i]);

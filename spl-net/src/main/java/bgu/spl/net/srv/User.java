@@ -18,7 +18,7 @@ public class User {
         return UserName;
     }
 
-    public boolean PasswardCheck(int Pass) {
+    public boolean PasswordCheck(int Pass) {
         return password == Pass;
     }
 }

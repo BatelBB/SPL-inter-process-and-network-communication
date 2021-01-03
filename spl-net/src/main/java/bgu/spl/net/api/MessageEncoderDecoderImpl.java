@@ -6,7 +6,7 @@ import java.util.Arrays;
 public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<String> {
     private byte[] bytes = new byte[1 << 10]; //start with 1k
     private int len = 0;
-    private String typeOfMassag;
+    private String typeOfMessage;
 
     /**
      * add the next byte to the decoding process
@@ -17,65 +17,65 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<String> 
      */
     @Override
     public String decodeNextByte(byte nextByte) {
-        if(len>=2){ //check op code to determine pop condition
-            short opCode = bytesToShort(new byte[]{bytes[0], bytes[1]}); //get op code
-            if(opCode == 1 || opCode == 2 || opCode == 3) {
-                int zeroByte = 0;
-                for (int i = 0; i < len && zeroByte < 2; i++)
+        if (len >= 2) {
+            short opcode = bytesToShort(new byte[]{bytes[0], bytes[1]});
+            if (opcode == 1 || opcode == 2 || opcode == 3) {
+                int zeroByteCounter = 0;
+                for (int i = 0; i < len && zeroByteCounter < 2; i++)
                     if (bytes[i] == '\0')
-                        zeroByte++;
-                if (zeroByte == 2) { // termination condition
-                    switch (opCode) {
+                        zeroByteCounter++;
+                if (zeroByteCounter == 2) {
+                    switch (opcode) {
                         case 1://ADMINREG
-                            typeOfMassag = "ADMINREG";
+                            typeOfMessage = "ADMINREG";
                             break;
                         case 2://STUDENTREG
-                            typeOfMassag = "STUDENTREG";
+                            typeOfMessage = "STUDENTREG";
                             break;
                         case 3: //LOGIN
-                            typeOfMassag = "LOGIN";
+                            typeOfMessage = "LOGIN";
                             break;
                     }
                     return popString();
                 }
-            }else if(opCode == 5 || opCode == 6 || opCode == 7 || opCode == 9 || opCode == 10){
-                if(len == 5){ // termination condition
-                    switch (opCode) {
+            } else if (opcode == 5 || opcode == 6 || opcode == 7 || opcode == 9 || opcode == 10) {
+                if (len == 5) {
+                    switch (opcode) {
                         case 5: //COURSEREG
-                            typeOfMassag = "COURSEREG";
+                            typeOfMessage = "COURSEREG";
                             break;
                         case 6: // KDAMCHECK
-                            typeOfMassag = "KDAMCHECK";
+                            typeOfMessage = "KDAMCHECK";
                             break;
                         case 7: //COURSESTAT
-                            typeOfMassag = "COURSESTAT";
+                            typeOfMessage = "COURSESTAT";
                             break;
                         case 9: //ISREGISTERED
-                            typeOfMassag = "ISREGISTERED";
+                            typeOfMessage = "ISREGISTERED";
                             break;
                         case 10: //UNREGISTER
-                            typeOfMassag = "UNREGISTER";
+                            typeOfMessage = "UNREGISTER";
                             break;
                     }
                 }
-                    return popString();
+                return popString();
 
-            }else if(opCode == 4 || opCode == 11) {
-                switch (opCode) {
+            } else if (opcode == 4 || opcode == 11) {
+                switch (opcode) {
                     case 4: //LOGOUT
-                        typeOfMassag = "LOGOUT";
+                        typeOfMessage = "LOGOUT";
                         break;
                     case 11: //MYCOURSES
-                        typeOfMassag = "MYCOURSES";
+                        typeOfMessage = "MYCOURSES";
                         break;
                 }
                 return popString();
 
-            }else if(opCode == 8){ //STUDENTSTAT
-                for(int i=0;i<len;i++) {
+            } else if (opcode == 8) { //STUDENTSTAT
+                for (int i = 0; i < len; i++) {
                     if (bytes[i] == '\0') // termination condition
-                        typeOfMassag = "STUDENTSTAT";
-                        return popString();
+                        typeOfMessage = "STUDENTSTAT";
+                    return popString();
                 }
             }
         }
@@ -109,8 +109,9 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<String> 
         }
         bytes[len++] = nextByte;
     }
+
     private String popString() {
-        String result = typeOfMassag + " " + new String(bytes, 2, len, StandardCharsets.UTF_8);
+        String result = typeOfMessage + " " + new String(bytes, 2, len, StandardCharsets.UTF_8);
         len = 0;
         return result;
     }

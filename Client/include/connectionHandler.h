@@ -47,6 +47,12 @@ public:
 	
     // Close down the connection properly.
     void close();
+
+    static short stringToOpcode(const std::string& opCode);
+
+    short bytesToShort(const char* bytesArr);
+
+    static void shortToBytes(short num, char* bytesArr);
  
 }; //class ConnectionHandler
  

@@ -4,7 +4,6 @@ import bgu.spl.net.Database;
 
 public class MessagingProtocolImpl implements MessagingProtocol<String> {
     private boolean shouldTerminate = false;
-
     /**
      * process the given message
      *
@@ -13,43 +12,51 @@ public class MessagingProtocolImpl implements MessagingProtocol<String> {
      */
     @Override
     public String process(String msg) {
-        if (msg.equals("ADMINREG")){
-          //  Database.getInstance().addUsers();
+        String[] splitmsg = msg.split(" ");
+        Database Data = Database.getInstance();
+
+        if (splitmsg[0].equals("ADMINREG") || splitmsg[0].equals("STUDENTREG")){
+            if(Data.setNewUser(splitmsg[0],splitmsg[1],Integer.parseInt(splitmsg[2]))) {
+                if (splitmsg[0].equals("ADMINREG")) {
+                    return "ACK 1";
+                } else { return "ACK 2"; }
+            }else{
+                if (splitmsg[0].equals("ADMINREG")) {
+                    return "ERROR 1";
+                } else { return "ERROR 2"; }
+            }
         }
-        if(msg.equals("STUDENTREG")){
+        if (splitmsg[0].equals("LOGIN")){
 
         }
-        if (msg.equals("LOGIN")){
+        if (splitmsg[0].equals("LOGOUT")){
 
         }
-        if (msg.equals("LOGOUT")){
+        if (splitmsg[0].equals("COURSEREG")){
 
         }
-        if (msg.equals("COURSEREG")){
+        if (splitmsg[0].equals("KDAMCHECK")){
 
         }
-        if (msg.equals("KDAMCHECK")){
+        if (splitmsg[0].equals("COURSESTAT")){
 
         }
-        if (msg.equals("COURSESTAT")){
+        if (splitmsg[0].equals("STUDENTSTAT")){
 
         }
-        if (msg.equals("STUDENTSTAT")){
+        if (splitmsg[0].equals("ISREGISTERED")){
 
         }
-        if (msg.equals("ISREGISTERED")){
+        if (splitmsg[0].equals("UNREGISTER")){
 
         }
-        if (msg.equals("UNREGISTER")){
+        if (splitmsg[0].equals("MYCOURSES")){
 
         }
-        if (msg.equals("MYCOURSES")){
+        if (splitmsg[0].equals("ACK")){
 
         }
-        if (msg.equals("ACK")){
-
-        }
-        if (msg.equals("ERR")){
+        if (splitmsg[0].equals("ERR")){
 
         }
         return null;

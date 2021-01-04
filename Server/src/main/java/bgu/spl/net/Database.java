@@ -1,14 +1,13 @@
 package bgu.spl.net;
 
 
-import bgu.spl.net.srv.Course;
-import bgu.spl.net.srv.User;
+import bgu.spl.net.api.Course;
+import bgu.spl.net.api.User;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Passive object representing the bgu.spl.net.Database where all courses and users are stored.

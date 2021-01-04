@@ -1,4 +1,4 @@
-package bgu.spl.net.srv;
+package bgu.spl.net.api;
 
 import java.util.ArrayList;
 import java.util.List;

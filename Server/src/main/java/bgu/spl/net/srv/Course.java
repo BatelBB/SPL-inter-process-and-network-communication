@@ -23,18 +23,18 @@ public class Course {
                 splitKdamInteger[i] = Integer.parseInt(splitKdamString[i]);
             } catch (NumberFormatException nfe) {
                 nfe.printStackTrace();
-            }
-            ;
+            };
         }
 
         KdamCoursesList = splitKdamInteger;
         numOfMaxStudents = (Integer.parseInt(splitCourse[3]));
     }
-    public int getNumOfStudents(){
+
+    public int getNumOfStudents() {
         return numOfMaxStudents;
     }
 
-    public String getCourseName(){
+    public String getCourseName() {
         return courseName;
     }
 

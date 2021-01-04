@@ -124,10 +124,12 @@ public class Database {
     }
 
     //returns an array of the pre required for this course
-    public int[] KdamCourses(int Course) {
-        for (int i = 0; i < CourseList.size(); i++) {
-            if (CourseList.get(i).getCourseNum() == Course) {
-                return CourseList.get(i).getKdamCoursesList();
+    public int[] KdamCourses(int Course, String name) {
+        if (IsRegistered(name).equals("Student")) {
+            for (int i = 0; i < CourseList.size(); i++) {
+                if (CourseList.get(i).getCourseNum() == Course) {
+                    return CourseList.get(i).getKdamCoursesList();
+                }
             }
         }
         //returns null if the course wasn't found
@@ -137,6 +139,34 @@ public class Database {
     //returns the names of the students that are registered for this course
     public List<String> CourseStat(int Course) {
         return CourseMap.get(Course);
+    }
+
+    public String studentRegisteredArr(int course){
+        String studentsArr = "[" + CourseStat(course) + "]";
+        return studentsArr.replaceAll(" ", ",");
+    }
+    public String coursesRegisteredArr(String name){
+        String coursesArr = "[" + StudentCourses(name) + "]";
+        return coursesArr.replaceAll(" ", ",");
+    }
+
+    public String courseName(int course) {
+        for (int i = 0; i < CourseList.size(); i++) {
+            if (CourseList.get(i).getCourseNum() == course)
+                return CourseList.get(i).getCourseName();
+        }
+        return null;
+    }
+
+    public int numOfStudentsInCourse(int course) {
+        int numOfStudents = 0;
+        for (int i = 0; i < CourseList.size(); i++) {
+            if (CourseList.get(i).getCourseNum() == course) {
+                numOfStudents = CourseList.get(i).getNumOfStudents();
+                break;
+            }
+        }
+        return numOfStudents;
     }
 
     //returns a list of courses that the student is registered in
@@ -150,15 +180,18 @@ public class Database {
     }
 
     public boolean registerStudentToCourse(String StudentName, int Course) {
-        boolean exist = true;
+        boolean exist = false;
         if (CourseMap.containsKey(Course) && !IsCourseFull(Course) && isUserLoggedIn(StudentName) && IsRegistered(StudentName).equals("Student")) {
-            int[] kdam = KdamCourses(Course);
+            exist = true;
+            int[] kdam = KdamCourses(Course, StudentName);
             List<Integer> studentKdam = StudentCourses(StudentName);
-            for(int i =0; i<kdam.length; i++){
-                if(!studentKdam.contains(kdam[i]))
-                    exist =  false;
+            for (int i = 0; i < kdam.length; i++) {
+                if (!studentKdam.contains(kdam[i])) {
+                    exist = false;
+                    break;
+                }
             }
-            if(exist){
+            if (exist) {
                 CourseMap.get(Course).add(StudentName);
             }
         }

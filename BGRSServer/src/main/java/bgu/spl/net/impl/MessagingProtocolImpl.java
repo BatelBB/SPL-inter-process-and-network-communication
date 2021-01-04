@@ -1,6 +1,7 @@
-package bgu.spl.net.api;
+package bgu.spl.net.impl;
 
 import bgu.spl.net.Database;
+import bgu.spl.net.api.MessagingProtocol;
 
 import java.util.Arrays;
 

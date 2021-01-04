@@ -2,6 +2,8 @@ package bgu.spl.net.api;
 
 import bgu.spl.net.Database;
 
+import java.util.Arrays;
+
 public class MessagingProtocolImpl implements MessagingProtocol<String> {
     private boolean shouldTerminate = false;
     private String userName = null;
@@ -61,28 +63,45 @@ public class MessagingProtocolImpl implements MessagingProtocol<String> {
             return "ERROR 5";
         }
         if (splitmsg[0].equals("KDAMCHECK")) {
-
+            if(Data.KdamCourses(Integer.parseInt(splitmsg[1]),userName)!=null){
+                return ("ACK 6 " + Arrays.toString(Data.KdamCourses(Integer.parseInt(splitmsg[1]),userName)));
+            }
+            return "ERROR 6";
         }
         if (splitmsg[0].equals("COURSESTAT")) {
-
+            String returnMessage = "Course: (" + splitmsg[1] +") ";
+            if(Data.IsRegistered(userName).equals("Student")||Data.courseName(Integer.parseInt(splitmsg[1]))==null)
+                return "ERROR 7";
+            returnMessage += Data.courseName(Integer.parseInt(splitmsg[1]))+"\n";
+            int registeredStudent = Data.CourseStat(Integer.parseInt(splitmsg[1])).size();
+            int courseSize = Data.numOfStudentsInCourse(Integer.parseInt(splitmsg[1]));
+            returnMessage += "Seats Available: " + registeredStudent + "/" + courseSize+"\n";
+            String studentRegistered = Data.studentRegisteredArr(Integer.parseInt(splitmsg[1]));
+            returnMessage += "Students Registered: " + studentRegistered;
+            return "ACK 7 " + returnMessage;
         }
         if (splitmsg[0].equals("STUDENTSTAT")) {
-
+            if(Data.IsRegistered(userName).equals("Student")||!Data.IsRegistered(splitmsg[1]).equals("Student"))
+                return "ERROR 7";
+            String returnMessage = "Student: " + splitmsg[1]+"\n";
+            String courseRegistered = Data.coursesRegisteredArr(splitmsg[1]);
+            returnMessage += "Courses: " + courseRegistered;
+            return "ACK 8 " + returnMessage;
         }
         if (splitmsg[0].equals("ISREGISTERED")) {
-
+            if(Data.IsRegisteredStudent(userName,Integer.parseInt(splitmsg[1]))){
+                return "ACK 9 REGISTERED";
+            }
+            return "ACK 9 NOT REGISTERED";
         }
         if (splitmsg[0].equals("UNREGISTER")) {
-
+            if(Data.Unregister(userName,Integer.parseInt(splitmsg[1]))){
+                return "ACK 10";
+            }
+            return "ERROR 10";
         }
         if (splitmsg[0].equals("MYCOURSES")) {
-
-        }
-        if (splitmsg[0].equals("ACK")) {
-
-        }
-        if (splitmsg[0].equals("ERR")) {
-
+            return "ACK 11 " + Data.coursesRegisteredArr(userName);
         }
         return null;
     }

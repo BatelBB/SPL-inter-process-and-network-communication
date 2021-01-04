@@ -8,7 +8,7 @@ public class TPCMain {
             System.out.println("Type port number");
             return;
         }
-        Server<String> TPC = Server.threadPerClient(Integer.parseInt(args[1]), ()->new MessagingProtocolImpl(),()->new MessageEncoderDecoderImpl());
+        Server<String> TPC = Server.threadPerClient(Integer.parseInt(args[0]), ()->new MessagingProtocolImpl(),()->new MessageEncoderDecoderImpl());
         TPC.serve();
     }
 }

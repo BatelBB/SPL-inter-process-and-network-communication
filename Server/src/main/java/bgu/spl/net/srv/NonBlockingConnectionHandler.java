@@ -51,6 +51,7 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
                         if (nextMessage != null) {
                             T response = protocol.process(nextMessage);
                             if (response != null) {
+                                System.out.println("ENTERED THE RESPONSE AREA " + response);
                                 writeQueue.add(ByteBuffer.wrap(encdec.encode(response)));
                                 reactor.updateInterestedOps(chan, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
                             }

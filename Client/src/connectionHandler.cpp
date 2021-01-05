@@ -64,11 +64,11 @@ bool ConnectionHandler::sendBytes(const char bytes[], int bytesToWrite) {
     return true;
 }
 
-bool ConnectionHandler::getLine(std::string &line) {
+bool ConnectionHandler::getLine(std::string &line, bool& terminate) {
     char ch;
     std::vector<char> vecBytes;
-    short opcode = 0;
     char opcodeArr[2];
+    short opcode = 0;
     try {
         do {
             if (!getBytes(&ch, 1)) {
@@ -94,6 +94,7 @@ bool ConnectionHandler::getLine(std::string &line) {
         //ACK message after logout
         if (shortMessage == 4) {
             line = "TERMINATE";
+            terminate = true;
         } else {
             line = "ACk";
             for (unsigned i = 4; i < vecBytes.size(); i++) {
@@ -131,16 +132,16 @@ bool ConnectionHandler::sendLine(std::string &line) {
         return false;
     }
     //string messages
-    if (opcode == 1 | opcode == 2 | opcode == 3 | opcode == 8) {
+    if ((opcode == 1) | (opcode == 2) | (opcode == 3) | (opcode == 8)) {
         std::replace(line.begin(), line.end(), ' ', '\0');
         line += '\0';
-
+        
         resultBytes = sendBytes(line.c_str(), line.length());
         if (resultBytes == false) {
             return false;
         }
         //course messages
-    } else if (opcode == 5 | opcode == 6 | opcode == 7 | opcode == 9 | opcode == 10) {
+    } else if ((opcode == 5) | (opcode == 6) | (opcode == 7) | (opcode == 9) | (opcode == 10)) {
         short courseShort = short(atoi(line.c_str()));
         char bytesArray[2];
         shortToBytes(courseShort, bytesArray);
@@ -152,32 +153,6 @@ bool ConnectionHandler::sendLine(std::string &line) {
     return true;
 }
 
-
-bool ConnectionHandler::getFrameAscii(std::string &frame, char delimiter) {
-    char ch;
-    // Stop when we encounter the null character.
-    // Notice that the null character is not appended to the frame string.
-    try {
-        do {
-            if (!getBytes(&ch, 1)) {
-                return false;
-            }
-            if (ch != '\0')
-                frame.append(1, ch);
-        } while (delimiter != ch);
-    } catch (std::exception &e) {
-        std::cerr << "recv failed2 (Error: " << e.what() << ')' << std::endl;
-        return false;
-    }
-    return true;
-}
-
-
-bool ConnectionHandler::sendFrameAscii(const std::string &frame, char delimiter) {
-    bool result = sendBytes(frame.c_str(), frame.length());
-    if (!result) return false;
-    return sendBytes(&delimiter, 1);
-}
 
 // Close down the connection properly.
 void ConnectionHandler::close() {
@@ -215,3 +190,4 @@ void ConnectionHandler::shortToBytes(short num, char* bytesArr)
     bytesArr[0] = ((num >> 8) & 0xFF);
     bytesArr[1] = (num & 0xFF);
 }
+

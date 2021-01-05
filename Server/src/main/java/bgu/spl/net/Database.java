@@ -77,7 +77,7 @@ public class Database {
     }
 
     //create a new user in the map if there is no user with the same username
-    public boolean setNewUser(String UserType, String Name, int Password) {
+    public boolean setNewUser(String UserType, String Name, String Password) {
         if (IsRegistered(Name) != null) {
             User newUser = new User(Name, Password, false);
             UsersMap.get(UserType).add(newUser);
@@ -217,7 +217,7 @@ public class Database {
         return false;
     }
     //returns true if the password is the same, false if the password isn't the same.
-    public boolean isPassTheSame(String Name, int Password) {
+    public boolean isPassTheSame(String Name, String Password) {
         boolean isPassTheSame;
         if (IsRegistered(Name) != null) {
             for (int i = 0; i < UsersMap.get(IsRegistered(Name)).size(); i++) {

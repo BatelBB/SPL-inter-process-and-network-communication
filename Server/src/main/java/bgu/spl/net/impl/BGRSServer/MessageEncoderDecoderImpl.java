@@ -1,12 +1,19 @@
-package bgu.spl.net.api;
+package bgu.spl.net.impl.BGRSServer;
+
+import bgu.spl.net.api.MessageEncoderDecoder;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<String> {
     private byte[] bytes = new byte[1 << 10]; //start with 1k
     private int len = 0;
+    private int lenEncode = 0;
     private String typeOfMessage;
+    private short localOpcode;
+    private byte[] ackOptionalMsg = new byte[1 << 10];
 
     /**
      * add the next byte to the decoding process
@@ -19,9 +26,10 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<String> 
     public String decodeNextByte(byte nextByte) {
         if (len >= 2) {
             short opcode = bytesToShort(new byte[]{bytes[0], bytes[1]});
+            localOpcode = opcode;
             if (opcode == 1 || opcode == 2 || opcode == 3) {
                 int zeroByteCounter = 0;
-                for (int i = 0; i < len && zeroByteCounter < 2; i++)
+                for (int i = 1; i < len && zeroByteCounter < 2; i++)
                     if (bytes[i] == '\0')
                         zeroByteCounter++;
                 if (zeroByteCounter == 2) {
@@ -94,6 +102,12 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<String> 
         return shortArray;
     }
 
+    public byte[] shortToBytes(short num) {
+        byte[] bytesArr = new byte[2];
+        bytesArr[0] = (byte) ((num >> 8) & 0xFF);
+        bytesArr[1] = (byte) (num & 0xFF);
+        return bytesArr;
+    }
 
     /**
      * encodes the given message to bytes array
@@ -103,7 +117,41 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<String> 
      */
     @Override
     public byte[] encode(String message) {
-        return new byte[0];
+        byte[] byteResultArr = null;
+        byte[] opcodeByteArr = shortToBytes(localOpcode);
+
+        List<byte[]> list = new ArrayList<>();
+        String[] splitmsg = message.split(" ");
+        if (splitmsg[0].equals("ACK")) {
+            byte[] ackByte = shortToBytes((short) 12);
+            for (int i = 1; i < splitmsg.length; i++) {
+                list.add(splitmsg[i].getBytes(StandardCharsets.UTF_8));
+            }
+            int byteResultArrLen = opcodeByteArr.length + ackByte.length;
+            if (splitmsg.length > 1) {
+                lenEncode = 1;
+                for (int i = 0; i < lenEncode && !list.isEmpty(); i++) {
+                    for (int j = 0; j < list.get(i).length; j++) {
+                        pushEncodeByte(list.get(i)[j]);
+                        byteResultArrLen++;
+                    }
+                    list.remove(0);
+
+                }
+            }
+            byteResultArr = new byte[byteResultArrLen];
+            System.arraycopy(opcodeByteArr, 0, byteResultArr, 0, 2);
+            System.arraycopy(ackByte, 0, byteResultArr, 2, 2);
+            if (splitmsg.length > 1)
+                System.arraycopy(ackOptionalMsg, 0, byteResultArr, 4, ackOptionalMsg.length);
+        } else {//ERROR message
+            byte[] ackByte = shortToBytes((short) 13);
+            int byteResultArrLen = opcodeByteArr.length + ackByte.length;
+            byteResultArr = new byte[byteResultArrLen];
+            System.arraycopy(opcodeByteArr, 0, byteResultArr, 0, 2);
+            System.arraycopy(ackByte, 0, byteResultArr, 2, 2);
+        }
+        return byteResultArr;
     }
 
     private void pushByte(byte nextByte) {
@@ -113,8 +161,31 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<String> 
         bytes[len++] = nextByte;
     }
 
+    private void pushEncodeByte(byte nextByte) {
+        if (lenEncode >= ackOptionalMsg.length) {
+            ackOptionalMsg = Arrays.copyOf(ackOptionalMsg, lenEncode * 2);
+        }
+        ackOptionalMsg[lenEncode++] = nextByte;
+    }
+
     private String popString() {
-        String result = typeOfMessage + " " + new String(bytes, 2, len, StandardCharsets.UTF_8);
+        String result = "";
+        if (typeOfMessage.equals("ADMINREG") || typeOfMessage.equals("STUDENTREG") || typeOfMessage.equals("LOGIN") ||
+                typeOfMessage.equals("STUDENTSTAT") || typeOfMessage.equals("LOGOUT") || typeOfMessage.equals("MYCOURSES")) {
+            ArrayList<String> stringOperations = new ArrayList<>();
+            // start from index 2 because the first 2 bytes are opCodes
+            for (int i = 2, stringStart = 2; i < len; i++) {
+                if (bytes[i] == '\0') { // end of string operation
+                    stringOperations.add(new String(bytes, stringStart, i - 1, StandardCharsets.UTF_8));
+                    stringStart = i + 1;
+                }
+
+            }
+            result = typeOfMessage + " " + stringOperations;
+        } else if (typeOfMessage.equals("COURSEREG") || typeOfMessage.equals("KDAMCHECK") || typeOfMessage.equals("COURSESTAT") || typeOfMessage.equals("ISREGISTERED") || typeOfMessage.equals("UNREGISTER")) {
+            short courseNum = bytesToShort(new byte[]{bytes[2], bytes[3]});
+            result = typeOfMessage + " " + courseNum;
+        }
         len = 0;
         return result;
     }

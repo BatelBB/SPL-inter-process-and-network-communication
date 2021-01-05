@@ -1,15 +1,15 @@
-package bgu.spl.net.srv;
+package bgu.spl.net.api;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class User {
     String UserName;
-    int password;
+    String password;
     boolean loggedIn;
 
 
-    public User(String Name, int Pass, boolean loggedIn) {
+    public User(String Name, String Pass, boolean loggedIn) {
         this.UserName = Name;
         this.password = Pass;
         this.loggedIn = loggedIn;
@@ -20,7 +20,7 @@ public class User {
         return this.UserName;
     }
 
-    public int getUserPassword() {
+    public String getUserPassword() {
         return this.password;
     }
 

@@ -28,34 +28,38 @@ public class MessagingProtocolImpl implements MessagingProtocol<String> {
         Database Data = Database.getInstance();
 
         if (splitmsg[0].equals("ADMINREG") || splitmsg[0].equals("STUDENTREG")) {//registration
+            System.out.println("ENTERD THE FIRST IF " + splitmsg[0] +" " +splitmsg[1]);
             if (splitmsg[0].equals("ADMINREG"))
                 splitmsg[0] = "Admin";
             else
                 splitmsg[0] = "Student";
             //if the setNewUser succeeded then returns true
             if (Data.setNewUser(splitmsg[0], splitmsg[1], splitmsg[2])) {//needs to check that there is a " " after the opcode
+                System.out.println("SETTED A NEW USER " + splitmsg[0] +" " +splitmsg[1]);
                 if (splitmsg[0].equals("Admin")) {
-                    return "ACK";
-//                } else {
-//                    return "ACK";
+                    return "ACK 1";
+                } else {
+                    return "ACK 2";
                 }
             } else {//the setNewUser have not succeeded
                 if (splitmsg[0].equals("Admin")) {
-                    return "ERROR";
+                    return "ERROR 1";
                }
-//                else {
-//                    return "ERROR 2";
-//                }
+                else {
+                    return "ERROR 2";
+                }
             }
         }
         if (splitmsg[0].equals("LOGIN")) {
+            System.out.println("ENTERED LOGIN AREA");
             //calls the method isPassTheSame with the username ([1]) and the password ([2])
             if(Data.isPassTheSame(splitmsg[1],splitmsg[2])) {
+                System.out.println("PASSWORD IS THE SAME");
                 userName = splitmsg[1];
-                return "ACK";
+                return "ACK 3";
             }
             //if the password isn't the same returns false
-            return "ERROR";
+            return "ERROR 3";
         }
         if (splitmsg[0].equals("LOGOUT")) {
             //checks if the userName of the current client isn't null, if it's null then the client isn't logged in.
@@ -74,15 +78,15 @@ public class MessagingProtocolImpl implements MessagingProtocol<String> {
 
         if (splitmsg[0].equals("COURSEREG")) {
             //calls the method registerStudentToCourse with the userName and the password[1]
-            if(Data.registerStudentToCourse(userName,Integer.parseInt(splitmsg[1])))
+            if(Data.registerStudentToCourse(userName,splitmsg[1]))
                 return "ACK";
             return "ERROR";
         }
         if (splitmsg[0].equals("KDAMCHECK")) {
             //calls the KdamCourse method to check if the number of course ([1]) is in the userName's kdamCourse list
-            if(Data.KdamCourses(Integer.parseInt(splitmsg[1]),userName)!=null){
+            if(Data.KdamCourses(splitmsg[1],userName)!=null){
                 //returns the ACK6 and the array of the kdamCourses.
-                return ("ACK " + Arrays.toString(Data.KdamCourses(Integer.parseInt(splitmsg[1]),userName)));
+                return ("ACK " + Arrays.toString(Data.KdamCourses(splitmsg[1],userName)));
             }
             return "ERROR";
         }
@@ -90,18 +94,18 @@ public class MessagingProtocolImpl implements MessagingProtocol<String> {
             //creates a string with the courses' name ([1]).
             String returnMessage = "Course: (" + splitmsg[1] +") ";
             //returns ERROR 7 if the userName is registered and that it's a student, and if the course doesn't exists
-            if(Data.IsRegistered(userName).equals("Student")||Data.courseName(Integer.parseInt(splitmsg[1]))==null)
+            if(Data.IsRegistered(userName).equals("Student")||Data.courseName(splitmsg[1])==null)
                 return "ERROR";
             //adds the course number to the string
-            returnMessage += Data.courseName(Integer.parseInt(splitmsg[1]))+"\n";
+            returnMessage += Data.courseName(splitmsg[1])+"\n";
             //gets an int of the number of students that registered to the course
-            int registeredStudent = Data.CourseStat(Integer.parseInt(splitmsg[1])).size();
+            int registeredStudent = Data.CourseStat(splitmsg[1]).size();
             //gets an int of the course limit size
-            int courseSize = Data.numOfStudentsInCourse(Integer.parseInt(splitmsg[1]));
+            int courseSize = Data.numOfStudentsInCourse(splitmsg[1]);
             //adds to the string the ints that were just created
             returnMessage += "Seats Available: " + registeredStudent + "/" + courseSize+"\n";
             //creates a string that contains an array of the registered student of the specific course
-            String studentRegistered = Data.studentRegisteredArr(Integer.parseInt(splitmsg[1]));
+            String studentRegistered = Data.studentRegisteredArr(splitmsg[1]);
             //adds to the string the array
             returnMessage += "Students Registered: " + studentRegistered;
             //returns the message and the ACK 7
@@ -122,14 +126,14 @@ public class MessagingProtocolImpl implements MessagingProtocol<String> {
         }
         if (splitmsg[0].equals("ISREGISTERED")) {
             //calls the IsRegisteredStudent with the userName and the course number ([1])
-            if(Data.IsRegisteredStudent(userName,Integer.parseInt(splitmsg[1]))){
+            if(Data.IsRegisteredStudent(userName,splitmsg[1])){
                 return "ACK REGISTERED";
             }
             return "ACK NOT REGISTERED";
         }
         if (splitmsg[0].equals("UNREGISTER")) {
             //calls the Unregister method with the userName and the course number ([1]) to remove the student from the courseMap
-            if(Data.Unregister(userName,Integer.parseInt(splitmsg[1]))){
+            if(Data.Unregister(userName,splitmsg[1])){
                 return "ACK";
             }
             //returns ERROR 10 if the student wasn't in the course

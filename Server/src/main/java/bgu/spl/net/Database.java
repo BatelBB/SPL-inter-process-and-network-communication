@@ -62,7 +62,7 @@ public class Database {
                 //Take the next line and split it at all the points there's |
                 String course = CoursesFile.nextLine();
                 String[] splitCourse = course.split("|");
-
+                //takes the string[] of courses and creates a new Course
                 Course CurrentCourse = new Course(splitCourse);
                 CourseList.add(CurrentCourse);
                 CourseMap.put(CurrentCourse.getCourseNum(), new ArrayList<>());
@@ -72,8 +72,7 @@ public class Database {
 
         } catch (FileNotFoundException e) {
             return false;
-        }
-        ;
+        };
         return true;
     }
 
@@ -82,10 +81,10 @@ public class Database {
         if (IsRegistered(Name) != null) {
             User newUser = new User(Name, Password, false);
             UsersMap.get(UserType).add(newUser);
-            //if the user is add
+            //if the user was added
             return true;
         }
-        //if the user failed to be add
+        //if the user failed to be added
         return false;
     }
 
@@ -139,16 +138,17 @@ public class Database {
     public List<String> CourseStat(int Course) {
         return CourseMap.get(Course);
     }
-
+    //return a string of an array of the students that registered to the course required
     public String studentRegisteredArr(int course){
         String studentsArr = "[" + CourseStat(course) + "]";
         return studentsArr.replaceAll(" ", ",");
     }
+    //returns a string of the an array of the courses that the student registered to
     public String coursesRegisteredArr(String name){
         String coursesArr = "[" + StudentCourses(name) + "]";
         return coursesArr.replaceAll(" ", ",");
     }
-
+    //return a string of the course name if it's exist in the CourseList, if it's not returns null
     public String courseName(int course) {
         for (int i = 0; i < CourseList.size(); i++) {
             if (CourseList.get(i).getCourseNum() == course)
@@ -157,6 +157,7 @@ public class Database {
         return null;
     }
 
+    //returns the number of students that can be in one course that is required
     public int numOfStudentsInCourse(int course) {
         int numOfStudents = 0;
         for (int i = 0; i < CourseList.size(); i++) {
@@ -177,9 +178,10 @@ public class Database {
         }
         return Courses;
     }
-
+    //returns true if it registered the student to the course, false if it couldn't register
     public boolean registerStudentToCourse(String StudentName, int Course) {
         boolean exist = false;
+        //checks if the course exists, if the course isn't full, if the user loggedIn and if the student is registered
         if (CourseMap.containsKey(Course) && !IsCourseFull(Course) && isUserLoggedIn(StudentName) && IsRegistered(StudentName).equals("Student")) {
             exist = true;
             int[] kdam = KdamCourses(Course, StudentName);
@@ -190,10 +192,12 @@ public class Database {
                     break;
                 }
             }
+            //if exist stayed true than it adds the student to the courseMap
             if (exist) {
                 CourseMap.get(Course).add(StudentName);
             }
         }
+        //if it stayed true it registered and returns true, if it didn't find the kdam in the students kdam list then it's false
         return exist;
     }
 
@@ -212,12 +216,13 @@ public class Database {
         //returns falls if the student wasn't found in the course to begin with
         return false;
     }
-
+    //returns true if the password is the same, false if the password isn't the same.
     public boolean isPassTheSame(String Name, int Password) {
         boolean isPassTheSame;
         if (IsRegistered(Name) != null) {
             for (int i = 0; i < UsersMap.get(IsRegistered(Name)).size(); i++) {
                 if (UsersMap.get(IsRegistered(Name)).get(i).getUserName().equals(Name)) {
+                    //returns true if the password is the same as the one the user registered with
                     isPassTheSame = UsersMap.get(IsRegistered(Name)).get(i).getUserPassword() == Password;
                     //if the password is the same, sets the user to be logged in
                     UsersMap.get(IsRegistered(Name)).get(i).setLoggedIn(isPassTheSame);
@@ -225,20 +230,24 @@ public class Database {
                 }
             }
         }
+        //if the user didn't register
         return false;
     }
-
+    //returns true if the user is loggedIn, false if the user isn't loggedIn.
     public boolean isUserLoggedIn(String Name) {
         if (IsRegistered(Name) != null) {
             for (int i = 0; i < UsersMap.get(IsRegistered(Name)).size(); i++) {
+                //checks if the userMap contains the user's username.
                 if (UsersMap.get(IsRegistered(Name)).get(i).getUserName().equals(Name)) {
+                    //returns true if the user is loggedIn
                     return UsersMap.get(IsRegistered(Name)).get(i).getLoggedIn();
                 }
             }
         }
+        //returns false if the user isn't registered.
         return false;
     }
-
+    //sets the user to be logged out.
     public void setLogOut(String Name) {
         for (int i = 0; i < UsersMap.get(IsRegistered(Name)).size(); i++) {
             if (UsersMap.get(IsRegistered(Name)).get(i).getUserName().equals(Name)) {

@@ -24,12 +24,13 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<String> 
      */
     @Override
     public String decodeNextByte(byte nextByte) {
+        pushByte(nextByte);
         if (len >= 2) {
             short opcode = bytesToShort(new byte[]{bytes[0], bytes[1]});
             localOpcode = opcode;
             if (opcode == 1 || opcode == 2 || opcode == 3) {
                 int zeroByteCounter = 0;
-                for (int i = 1; i < len && zeroByteCounter < 2; i++)
+                for (int i = 2; i < len && zeroByteCounter < 2; i++)
                     if (bytes[i] == '\0')
                         zeroByteCounter++;
                 if (zeroByteCounter == 2) {
@@ -47,7 +48,7 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<String> 
                     return popString();
                 }
             } else if (opcode == 5 || opcode == 6 || opcode == 7 || opcode == 9 || opcode == 10) {
-                if (len == 5) {
+                if (len == 4) {
                     switch (opcode) {
                         case 5: //COURSEREG
                             typeOfMessage = "COURSEREG";
@@ -65,10 +66,9 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<String> 
                             typeOfMessage = "UNREGISTER";
                             break;
                     }
+                    return popString();
                 }
-                return popString();
-
-            } else if (opcode == 4 || opcode == 11 || opcode == 12) {
+            } else if (opcode == 4 || opcode == 11 ) {
                 switch (opcode) {
                     case 4: //LOGOUT
                         typeOfMessage = "LOGOUT";
@@ -76,21 +76,19 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<String> 
                     case 11: //MYCOURSES
                         typeOfMessage = "MYCOURSES";
                         break;
-                    case 12: //Terminate
-                        typeOfMessage = "TERMINATE";
-                        break;
+//                    case 12: //Terminate
+//                        typeOfMessage = "TERMINATE";
                 }
                 return popString();
-
             } else if (opcode == 8) { //STUDENTSTAT
-                for (int i = 0; i < len; i++) {
-                    if (bytes[i] == '\0') // termination condition
+                for (int i = 2; i < len; i++) {
+                    if (bytes[i] == '\0') { // termination condition
                         typeOfMessage = "STUDENTSTAT";
-                    return popString();
+                        return popString();
+                    }
                 }
             }
         }
-        pushByte(nextByte);
         return null; //not a line yet
     }
 
@@ -117,15 +115,15 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<String> 
      */
     @Override
     public byte[] encode(String message) {
-        byte[] byteResultArr = null;
-        byte[] opcodeByteArr = shortToBytes(localOpcode);
+        byte[] byteResultArr = null; //eventually will return this byte array
+        byte[] opcodeByteArr = shortToBytes(localOpcode); //takes the opcode that was saved from the decoding process
 
         List<byte[]> list = new ArrayList<>();
         String[] splitmsg = message.split(" ");
         if (splitmsg[0].equals("ACK")) {
             byte[] ackByte = shortToBytes((short) 12);
-            for (int i = 1; i < splitmsg.length; i++) {
-                list.add(splitmsg[i].getBytes(StandardCharsets.UTF_8));
+            for (int i = 2; i < splitmsg.length; i++) {//gets the optional part of the ACK message
+                list.add(splitmsg[i].getBytes());
             }
             int byteResultArrLen = opcodeByteArr.length + ackByte.length;
             if (splitmsg.length > 1) {
@@ -136,7 +134,6 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<String> 
                         byteResultArrLen++;
                     }
                     list.remove(0);
-
                 }
             }
             byteResultArr = new byte[byteResultArrLen];
@@ -144,12 +141,12 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<String> 
             System.arraycopy(ackByte, 0, byteResultArr, 2, 2);
             if (splitmsg.length > 1)
                 System.arraycopy(ackOptionalMsg, 0, byteResultArr, 4, ackOptionalMsg.length);
+            byteResultArr[byteResultArr.length-1] = '\0';
         } else {//ERROR message
-            byte[] ackByte = shortToBytes((short) 13);
-            int byteResultArrLen = opcodeByteArr.length + ackByte.length;
-            byteResultArr = new byte[byteResultArrLen];
+            byte[] errorByte = shortToBytes((short) 13);
+            byteResultArr = new byte[4];
             System.arraycopy(opcodeByteArr, 0, byteResultArr, 0, 2);
-            System.arraycopy(ackByte, 0, byteResultArr, 2, 2);
+            System.arraycopy(errorByte, 0, byteResultArr, 2, 2);
         }
         return byteResultArr;
     }
@@ -179,7 +176,6 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<String> 
                     stringOperations.add(new String(bytes, stringStart, i - 1, StandardCharsets.UTF_8));
                     stringStart = i + 1;
                 }
-
             }
             result = typeOfMessage + " " + stringOperations;
         } else if (typeOfMessage.equals("COURSEREG") || typeOfMessage.equals("KDAMCHECK") || typeOfMessage.equals("COURSESTAT") || typeOfMessage.equals("ISREGISTERED") || typeOfMessage.equals("UNREGISTER")) {

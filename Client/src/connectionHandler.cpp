@@ -64,9 +64,9 @@ bool ConnectionHandler::sendBytes(const char bytes[], int bytesToWrite) {
     return true;
 }
 
-bool ConnectionHandler::getLine(std::string &line, bool& terminate) {
+bool ConnectionHandler::getLine(std::string& line, bool& terminate) {
     char ch;
-    std::vector<char> vecBytes;
+    vector<char> vecBytes;
     char opcodeArr[2];
     short opcode = 0;
     try {
@@ -75,13 +75,14 @@ bool ConnectionHandler::getLine(std::string &line, bool& terminate) {
                 return false;
             }
             vecBytes.push_back(ch);
-            if(opcode==13&&vecBytes.size()==4){
-                break;
-            }
+            
             if (vecBytes.size() == 2) {
                 opcodeArr[0] = vecBytes[0];
                 opcodeArr[1] = vecBytes[1];
                 opcode = bytesToShort(opcodeArr);
+            }
+		if(opcode==13&&vecBytes.size()==4){
+                break;
             }
         } while ('\0' != ch || vecBytes.size()<=4);
     } catch (std::exception &e) {
@@ -96,7 +97,7 @@ bool ConnectionHandler::getLine(std::string &line, bool& terminate) {
             line = "TERMINATE";
             terminate = true;
         } else {
-            line = "ACk";
+            line = "ACk " + std::to_string(shortMessage);
             for (unsigned i = 4; i < vecBytes.size(); i++) {
                 line.append(1, vecBytes[i]);//takes the <optional> part of the ack message and turns it into a string
             }

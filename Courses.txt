@@ -1,0 +1,31 @@
+101|History of Magic|[]|500
+102|Astronomy|[]|500
+103|Abjuration|[]|500
+104|Conjuration|[]|500
+105|Enchantment|[]|500
+106|Evocation|[]|500
+107|Illusion|[]|500
+109|Transmutation|[]|500
+420|Herbology|[]|400
+111|Charms|[101,102,105,420]|300
+666|Dark Arts|[101,102]|150
+999|Defence Against the Dark Arts|[101,102]|150
+112|Potions|[101,420]|300
+113|Transfiguration|[101,103,109]|200
+114|Arithmancy|[101,102]|50
+115|Care of Magical Creatures|[101,105,420]|100
+108|Divination|[101,102]|300
+116|Muggle Studies|[101]|300
+110|Necromancy|[666,999]|50
+117|Advanced Arithmancy Studies|[114]|50
+118|Alchemy|[112,104,109,420]|200
+120|Ancient Studies|[101]|150
+121|Apparition|[109]|150
+122|Art|[]|150
+123|Flying|[101]|500
+669|Ghoul Studies|[666,999]|50
+124|Magical Theory|[101]|50
+125|Muggle Art|[109]|150
+126|Muggle Music|[109]|150
+127|Music|[]|150
+128|Xylomancy|[108]|20

@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
         bool terminate = false;
         // Get back an answer: by using the expected number of bytes (len bytes + newline delimiter)
         // We could also use: connectionHandler.getline(answer) and then get the answer without the newline char at the end
-        if (!connectionHandler.getLine(answer)) {
+        if (!connectionHandler.getLine(answer,terminate)) {
             inputWorkingThread.interrupt();
             break;
         }
@@ -67,4 +67,5 @@ int main(int argc, char *argv[]) {
     inputWorkingThread.join();
     return 0;
 }
+
 

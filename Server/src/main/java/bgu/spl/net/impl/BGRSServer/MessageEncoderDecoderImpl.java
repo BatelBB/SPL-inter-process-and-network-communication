@@ -115,6 +115,7 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<String> 
      */
     @Override
     public byte[] encode(String message) {
+        System.out.println("ENTERED THE ENCODE AREA " +message);
         byte[] byteResultArr = null; //eventually will return this byte array
         byte[] opcodeByteArr = shortToBytes(localOpcode); //takes the opcode that was saved from the decoding process
 
@@ -122,11 +123,11 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<String> 
         String[] splitmsg = message.split(" ");
         if (splitmsg[0].equals("ACK")) {
             byte[] ackByte = shortToBytes((short) 12);
-            for (int i = 2; i < splitmsg.length; i++) {//gets the optional part of the ACK message
-                list.add(splitmsg[i].getBytes());
+            for (int i = 1; i < splitmsg.length; i++) {//gets the optional part of the ACK message
+                list.add(splitmsg[i].getBytes(StandardCharsets.UTF_8));
             }
             int byteResultArrLen = opcodeByteArr.length + ackByte.length;
-            if (splitmsg.length > 1) {
+            if (splitmsg.length > 2) {
                 lenEncode = 1;
                 for (int i = 0; i < lenEncode && !list.isEmpty(); i++) {
                     for (int j = 0; j < list.get(i).length; j++) {
@@ -136,17 +137,20 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<String> 
                     list.remove(0);
                 }
             }
-            byteResultArr = new byte[byteResultArrLen];
-            System.arraycopy(opcodeByteArr, 0, byteResultArr, 0, 2);
-            System.arraycopy(ackByte, 0, byteResultArr, 2, 2);
-            if (splitmsg.length > 1)
+            byteResultArr = new byte[byteResultArrLen+1];
+            System.arraycopy(ackByte, 0, byteResultArr, 0, 2);
+            System.arraycopy(opcodeByteArr, 0, byteResultArr, 2, 2);
+            if (splitmsg.length > 2)
                 System.arraycopy(ackOptionalMsg, 0, byteResultArr, 4, ackOptionalMsg.length);
             byteResultArr[byteResultArr.length-1] = '\0';
         } else {//ERROR message
             byte[] errorByte = shortToBytes((short) 13);
             byteResultArr = new byte[4];
-            System.arraycopy(opcodeByteArr, 0, byteResultArr, 0, 2);
-            System.arraycopy(errorByte, 0, byteResultArr, 2, 2);
+            System.arraycopy(errorByte, 0, byteResultArr, 0, 2);
+            System.arraycopy(opcodeByteArr, 0, byteResultArr, 2, 2);
+        }
+        for(int i=0; i<byteResultArr.length; i++){
+            System.out.println(byteResultArr[i]);
         }
         return byteResultArr;
     }

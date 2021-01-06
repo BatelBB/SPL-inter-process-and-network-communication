@@ -37,16 +37,16 @@ public class MessagingProtocolImpl implements MessagingProtocol<String> {
             if (Data.setNewUser(splitmsg[0], splitmsg[1], splitmsg[2])) {//needs to check that there is a " " after the opcode
                 System.out.println("SETTED A NEW USER " + splitmsg[0] +" " +splitmsg[1]);
                 if (splitmsg[0].equals("Admin")) {
-                    return "ACK 1";
+                    return "ACK";
                 } else {
-                    return "ACK 2";
+                    return "ACK";
                 }
             } else {//the setNewUser have not succeeded
                 if (splitmsg[0].equals("Admin")) {
-                    return "ERROR 1";
+                    return "ERROR";
                }
                 else {
-                    return "ERROR 2";
+                    return "ERROR";
                 }
             }
         }
@@ -56,10 +56,10 @@ public class MessagingProtocolImpl implements MessagingProtocol<String> {
             if(Data.isPassTheSame(splitmsg[1],splitmsg[2])) {
                 System.out.println("PASSWORD IS THE SAME");
                 userName = splitmsg[1];
-                return "ACK 3";
+                return "ACK";
             }
             //if the password isn't the same returns false
-            return "ERROR 3";
+            return "ERROR";
         }
         if (splitmsg[0].equals("LOGOUT")) {
             //checks if the userName of the current client isn't null, if it's null then the client isn't logged in.
@@ -78,15 +78,16 @@ public class MessagingProtocolImpl implements MessagingProtocol<String> {
 
         if (splitmsg[0].equals("COURSEREG")) {
             //calls the method registerStudentToCourse with the userName and the password[1]
-            if(Data.registerStudentToCourse(userName,Integer.parseInt(splitmsg[1])))
+            if(Data.registerStudentToCourse(userName,Integer.parseInt(splitmsg[1]))) {
                 return "ACK";
+            }
             return "ERROR";
         }
         if (splitmsg[0].equals("KDAMCHECK")) {
             //calls the KdamCourse method to check if the number of course ([1]) is in the userName's kdamCourse list
             if(Data.KdamCourses(Integer.parseInt(splitmsg[1]),userName)!=null){
                 //returns the ACK6 and the array of the kdamCourses.
-                return ("ACK " + Arrays.toString(Data.KdamCourses(Integer.parseInt(splitmsg[1]),userName)));
+                return ("ACK " + (Data.KdamCourses(Integer.parseInt(splitmsg[1]),userName)));
             }
             return "ERROR";
         }

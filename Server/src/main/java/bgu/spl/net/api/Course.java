@@ -1,11 +1,12 @@
 package bgu.spl.net.api;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Course {
     private int courseNum;
     private String courseName;
-    private int[] KdamCoursesList;
+    private ArrayList<Integer> KdamCoursesList;
     private int numOfMaxStudents;
 
     public Course(String[] splitCourse) {
@@ -15,15 +16,17 @@ public class Course {
 
         //spliting the string in to a string array
         String[] splitKdamString = splitCourse[2].replaceAll("\\[", "").replaceAll("]", "").replaceAll("\\s", "").split(",");
-        int[] splitKdamInteger = new int[splitKdamString.length];
+        ArrayList<Integer> splitKdamInteger = new ArrayList<>();
 
         //Take the string array and convert it in to an Integer array
         for (int i = 0; i < splitKdamString.length; i++) {
-            try {
-                splitKdamInteger[i] = Integer.parseInt(splitKdamString[i]);
-            } catch (NumberFormatException nfe) {
-                nfe.printStackTrace();
-            };
+            if (!splitKdamString[i].equals(""))
+                try {
+                    splitKdamInteger.add(Integer.parseInt(splitKdamString[i]));
+                } catch (NumberFormatException nfe) {
+                    nfe.printStackTrace();
+                }
+            ;
         }
 
         KdamCoursesList = splitKdamInteger;
@@ -42,7 +45,7 @@ public class Course {
         return courseNum;
     }
 
-    public int[] getKdamCoursesList() {
+    public ArrayList<Integer> getKdamCoursesList() {
         return KdamCoursesList;
     }
 }

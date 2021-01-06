@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 //https://www.cs.bgu.ac.il/~spl211/Assignments/Assignment_3?action=show-thread&id=02259a78b260b7e58bd05ca5232a3c8e
 public class Database {
     private Map<String, List<User>> UsersMap;
-    private Map<String, List<String>> CourseMap; // contains the names of the students that take this course
+    private Map<Integer, List<String>> CourseMap; // contains the names of the students that take this course
     private List<Course> CourseList;//contains the course number with all its data
 
 
@@ -38,6 +38,7 @@ public class Database {
         UsersMap.put("Admin", new ArrayList<>());
         UsersMap.put("Student", new ArrayList<>());
 
+        initialize("./Courses.txt");
     }
 
     /**
@@ -61,7 +62,7 @@ public class Database {
 
                 //Take the next line and split it at all the points there's |
                 String course = CoursesFile.nextLine();
-                String[] splitCourse = course.split("|");
+                String[] splitCourse = course.split("\\|");
                 //takes the string[] of courses and creates a new Course
                 Course CurrentCourse = new Course(splitCourse);
                 CourseList.add(CurrentCourse);
@@ -105,9 +106,9 @@ public class Database {
     }
 
     //checks if the course is full
-    public boolean IsCourseFull(String Course) {
+    public boolean IsCourseFull(int Course) {
         for (int i = 0; i < CourseList.size(); i++) {
-            if (CourseList.get(i).getCourseNum().equals(Course)) {
+            if (CourseList.get(i).getCourseNum()==Course) {
                 if (CourseList.get(i).getNumOfStudents() != CourseMap.get(Course).size()) {
                     //false if its not full
                     return false;
@@ -122,10 +123,10 @@ public class Database {
     }
 
     //returns an array of the pre required for this course
-    public int[] KdamCourses(String Course, String name) {
+    public int[] KdamCourses(int Course, String name) {
         if (IsRegistered(name).equals("Student")) {
             for (int i = 0; i < CourseList.size(); i++) {
-                if (CourseList.get(i).getCourseNum().equals(Course)) {
+                if (CourseList.get(i).getCourseNum()==Course) {
                     return CourseList.get(i).getKdamCoursesList();
                 }
             }
@@ -135,11 +136,11 @@ public class Database {
     }
 
     //returns the names of the students that are registered for this course
-    public List<String> CourseStat(String Course) {
+    public List<String> CourseStat(int Course) {
         return CourseMap.get(Course);
     }
     //return a string of an array of the students that registered to the course required
-    public String studentRegisteredArr(String course){
+    public String studentRegisteredArr(int course){
         String studentsArr = "[" + CourseStat(course) + "]";
         return studentsArr.replaceAll(" ", ",");
     }
@@ -149,19 +150,19 @@ public class Database {
         return coursesArr.replaceAll(" ", ",");
     }
     //return a string of the course name if it's exist in the CourseList, if it's not returns null
-    public String courseName(String course) {
+    public String courseName(int course) {
         for (int i = 0; i < CourseList.size(); i++) {
-            if (CourseList.get(i).getCourseNum().equals(course))
+            if (CourseList.get(i).getCourseNum()==course)
                 return CourseList.get(i).getCourseName();
         }
         return null;
     }
 
     //returns the number of students that can be in one course that is required
-    public int numOfStudentsInCourse(String course) {
+    public int numOfStudentsInCourse(int course) {
         int numOfStudents = 0;
         for (int i = 0; i < CourseList.size(); i++) {
-            if (CourseList.get(i).getCourseNum().equals(course)) {
+            if (CourseList.get(i).getCourseNum()==course) {
                 numOfStudents = CourseList.get(i).getNumOfStudents();
                 break;
             }
@@ -170,8 +171,8 @@ public class Database {
     }
 
     //returns a list of courses that the student is registered in
-    public List<String> StudentCourses(String StudentName) {
-        List<String> Courses = new ArrayList<>();
+    public List<Integer> StudentCourses(String StudentName) {
+        List<Integer> Courses = new ArrayList<>();
         for (int i = 0; i < CourseList.size(); i++) {
             if (CourseStat(CourseList.get(i).getCourseNum()).contains(StudentName))
                 Courses.add(CourseList.get(i).getCourseNum());
@@ -179,13 +180,13 @@ public class Database {
         return Courses;
     }
     //returns true if it registered the student to the course, false if it couldn't register
-    public boolean registerStudentToCourse(String StudentName, String Course) {
+    public boolean registerStudentToCourse(String StudentName, int Course) {
         boolean exist = false;
         //checks if the course exists, if the course isn't full, if the user loggedIn and if the student is registered
         if (CourseMap.containsKey(Course) && !IsCourseFull(Course) && isUserLoggedIn(StudentName) && IsRegistered(StudentName).equals("Student")) {
             exist = true;
             int[] kdam = KdamCourses(Course, StudentName);
-            List<String> studentKdam = StudentCourses(StudentName);
+            List<Integer> studentKdam = StudentCourses(StudentName);
             for (int i = 0; i < kdam.length; i++) {
                 if (!studentKdam.contains(kdam[i])) {
                     exist = false;
@@ -202,12 +203,12 @@ public class Database {
     }
 
     //returns whether or not the student is registered to the course
-    public boolean IsRegisteredStudent(String StudentName, String Course) {
+    public boolean IsRegisteredStudent(String StudentName, int Course) {
         return CourseMap.get(Course).contains(StudentName);
     }
 
     //unregisters the student from the course
-    public boolean Unregister(String StudentName, String Course) {
+    public boolean Unregister(String StudentName, int Course) {
         if (IsRegisteredStudent(StudentName, Course)) {
             CourseMap.get(Course).remove(StudentName);
             //returns true if the student was unregistered

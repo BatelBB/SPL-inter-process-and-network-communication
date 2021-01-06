@@ -4,8 +4,7 @@ package bgu.spl.net;
 import bgu.spl.net.api.Course;
 import bgu.spl.net.api.User;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -23,6 +22,7 @@ public class Database {
     private Map<String, List<User>> UsersMap;
     private Map<Integer, List<String>> CourseMap; // contains the names of the students that take this course
     private List<Course> CourseList;//contains the course number with all its data
+    private List<Integer> coursesOrder;
 
 
     private static class databaseSingletonHolder {
@@ -34,6 +34,7 @@ public class Database {
         UsersMap = new ConcurrentHashMap<>();
         CourseMap = new ConcurrentHashMap<>();
         CourseList = new ArrayList<>();
+        coursesOrder = new ArrayList<>();
 
         UsersMap.put("Admin", new ArrayList<>());
         UsersMap.put("Student", new ArrayList<>());
@@ -62,18 +63,26 @@ public class Database {
 
                 //Take the next line and split it at all the points there's |
                 String course = CoursesFile.nextLine();
+                //Take the next line and split it at all the points there's |
                 String[] splitCourse = course.split("\\|");
+                for(int i=0; i<splitCourse.length; i++) {
+                    System.out.println(splitCourse[i]);
+                }
                 //takes the string[] of courses and creates a new Course
                 Course CurrentCourse = new Course(splitCourse);
                 CourseList.add(CurrentCourse);
                 CourseMap.put(CurrentCourse.getCourseNum(), new ArrayList<>());
-
+                coursesOrder.add(CurrentCourse.getCourseNum());
             }
-            CoursesFile.close();
+            CourseList.forEach(course ->
+                    course.getKdamCoursesList().sort(Comparator.comparingInt(coursesOrder::indexOf)));
 
-        } catch (FileNotFoundException e) {
+
+        } catch (IOException e) {
+            e.printStackTrace();
             return false;
-        };
+        }
+        ;
         return true;
     }
 
@@ -81,6 +90,8 @@ public class Database {
     public boolean setNewUser(String UserType, String Name, String Password) {
         if (IsRegistered(Name) == null) {
             User newUser = new User(Name, Password, false);
+            for(int i =0; i<CourseList.size();i++)
+                System.out.println(CourseList.get(i).getCourseNum());
             UsersMap.get(UserType).add(newUser);
             //if the user was added
             return true;
@@ -108,7 +119,7 @@ public class Database {
     //checks if the course is full
     public boolean IsCourseFull(int Course) {
         for (int i = 0; i < CourseList.size(); i++) {
-            if (CourseList.get(i).getCourseNum()==Course) {
+            if (CourseList.get(i).getCourseNum() == Course) {
                 if (CourseList.get(i).getNumOfStudents() != CourseMap.get(Course).size()) {
                     //false if its not full
                     return false;
@@ -123,10 +134,10 @@ public class Database {
     }
 
     //returns an array of the pre required for this course
-    public int[] KdamCourses(int Course, String name) {
+    public ArrayList<Integer> KdamCourses(int Course, String name) {
         if (IsRegistered(name).equals("Student")) {
             for (int i = 0; i < CourseList.size(); i++) {
-                if (CourseList.get(i).getCourseNum()==Course) {
+                if (CourseList.get(i).getCourseNum() == Course) {
                     return CourseList.get(i).getKdamCoursesList();
                 }
             }
@@ -139,20 +150,23 @@ public class Database {
     public List<String> CourseStat(int Course) {
         return CourseMap.get(Course);
     }
+
     //return a string of an array of the students that registered to the course required
-    public String studentRegisteredArr(int course){
+    public String studentRegisteredArr(int course) {
         String studentsArr = "[" + CourseStat(course) + "]";
         return studentsArr.replaceAll(" ", ",");
     }
+
     //returns a string of the an array of the courses that the student registered to
-    public String coursesRegisteredArr(String name){
+    public String coursesRegisteredArr(String name) {
         String coursesArr = "[" + StudentCourses(name) + "]";
         return coursesArr.replaceAll(" ", ",");
     }
+
     //return a string of the course name if it's exist in the CourseList, if it's not returns null
     public String courseName(int course) {
         for (int i = 0; i < CourseList.size(); i++) {
-            if (CourseList.get(i).getCourseNum()==course)
+            if (CourseList.get(i).getCourseNum() == course)
                 return CourseList.get(i).getCourseName();
         }
         return null;
@@ -162,7 +176,7 @@ public class Database {
     public int numOfStudentsInCourse(int course) {
         int numOfStudents = 0;
         for (int i = 0; i < CourseList.size(); i++) {
-            if (CourseList.get(i).getCourseNum()==course) {
+            if (CourseList.get(i).getCourseNum() == course) {
                 numOfStudents = CourseList.get(i).getNumOfStudents();
                 break;
             }
@@ -179,22 +193,26 @@ public class Database {
         }
         return Courses;
     }
+
     //returns true if it registered the student to the course, false if it couldn't register
     public boolean registerStudentToCourse(String StudentName, int Course) {
         boolean exist = false;
         //checks if the course exists, if the course isn't full, if the user loggedIn and if the student is registered
-        if (CourseMap.containsKey(Course) && !IsCourseFull(Course) && isUserLoggedIn(StudentName) && IsRegistered(StudentName).equals("Student")) {
+        //if (CourseMap.containsKey(Course) && !IsCourseFull(Course) && isUserLoggedIn(StudentName) && IsRegistered(StudentName).equals("Student")) {
+            if(CourseMap.containsKey(Course)){
+            System.out.println("ENTERED THE REGISTERSTUDENTCOURSE FIRST IF" + StudentName+ Course);
             exist = true;
-            int[] kdam = KdamCourses(Course, StudentName);
+            ArrayList<Integer> kdam = KdamCourses(Course, StudentName);
             List<Integer> studentKdam = StudentCourses(StudentName);
-            for (int i = 0; i < kdam.length; i++) {
-                if (!studentKdam.contains(kdam[i])) {
+            for (int i = 0; i < kdam.size(); i++) {
+                if (!studentKdam.contains(kdam.get(i))) {
                     exist = false;
                     break;
                 }
             }
             //if exist stayed true than it adds the student to the courseMap
             if (exist) {
+                System.out.println("EXIST IS TRUE");
                 CourseMap.get(Course).add(StudentName);
             }
         }
@@ -217,6 +235,7 @@ public class Database {
         //returns falls if the student wasn't found in the course to begin with
         return false;
     }
+
     //returns true if the password is the same, false if the password isn't the same.
     public boolean isPassTheSame(String Name, String Password) {
         boolean isPassTheSame;
@@ -234,6 +253,7 @@ public class Database {
         //if the user didn't register
         return false;
     }
+
     //returns true if the user is loggedIn, false if the user isn't loggedIn.
     public boolean isUserLoggedIn(String Name) {
         if (IsRegistered(Name) != null) {
@@ -248,6 +268,7 @@ public class Database {
         //returns false if the user isn't registered.
         return false;
     }
+
     //sets the user to be logged out.
     public void setLogOut(String Name) {
         for (int i = 0; i < UsersMap.get(IsRegistered(Name)).size(); i++) {

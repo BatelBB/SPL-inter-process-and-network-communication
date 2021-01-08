@@ -22,13 +22,13 @@ public class MessagingProtocolImpl implements MessagingProtocol<String> {
         for (int i=0; i < splitmsg.length; i++) {
             splitmsg[i] = splitmsg[i].replaceAll("\\[", "").replaceAll("]", "").replaceAll("\\s", "").replaceAll(",", "");
         }
-        for(int i=0; i<splitmsg.length; i++) {
-            System.out.println(splitmsg[i]);
-        }
+
         Database Data = Database.getInstance();
 
         if (splitmsg[0].equals("ADMINREG") || splitmsg[0].equals("STUDENTREG")) {//registration
-            System.out.println("ENTERD THE FIRST IF " + splitmsg[0] +" " +splitmsg[1]);
+            if(userName!=null)
+                return "ERROR";
+            System.out.println("ENTERED THE FIRST IF " + splitmsg[0] +" " +splitmsg[1]);
             if (splitmsg[0].equals("ADMINREG"))
                 splitmsg[0] = "Admin";
             else
@@ -63,17 +63,15 @@ public class MessagingProtocolImpl implements MessagingProtocol<String> {
         }
         if (splitmsg[0].equals("LOGOUT")) {
             //checks if the userName of the current client isn't null, if it's null then the client isn't logged in.
-            if(userName!=null)
+            if(userName!=null) {
+                //sets the current username to be logged out
+                Data.setLogOut(userName);
+                //sets the userName to be null
+                userName = null;
+                shouldTerminate = true;
                 return "ACK";
+            }
             return "ERROR";
-        }
-
-        if(splitmsg[0].equals("TERMINATE")) {
-            //sets the current username to be logged out
-            Data.setLogOut(userName);
-            //sets the userName to be null
-            userName=null;
-            shouldTerminate = true;
         }
 
         if (splitmsg[0].equals("COURSEREG")) {
@@ -93,7 +91,7 @@ public class MessagingProtocolImpl implements MessagingProtocol<String> {
         }
         if (splitmsg[0].equals("COURSESTAT")) {
             //creates a string with the courses' name ([1]).
-            String returnMessage = "\nCourse: (" + splitmsg[1] +") ";
+            String returnMessage = "Course: (" + splitmsg[1] +") ";
             //returns ERROR 7 if the userName is registered and that it's a student, and if the course doesn't exists
             if(Data.IsRegistered(userName).equals("Student")||Data.courseName(Integer.parseInt(splitmsg[1]))==null)
                 return "ERROR";
@@ -126,11 +124,13 @@ public class MessagingProtocolImpl implements MessagingProtocol<String> {
             return "ACK " + returnMessage;
         }
         if (splitmsg[0].equals("ISREGISTERED")) {
+            if(Data.IsRegistered(userName).equals("Admin"))
+                return "ERROR";
             //calls the IsRegisteredStudent with the userName and the course number ([1])
             if(Data.IsRegisteredStudent(userName,Integer.parseInt(splitmsg[1]))){
                 return "ACK REGISTERED";
             }
-            return "ACK NOT REGISTERED";
+            return "ACK NOT_REGISTERED";
         }
         if (splitmsg[0].equals("UNREGISTER")) {
             //calls the Unregister method with the userName and the course number ([1]) to remove the student from the courseMap
@@ -141,8 +141,10 @@ public class MessagingProtocolImpl implements MessagingProtocol<String> {
             return "ERROR";
         }
         if (splitmsg[0].equals("MYCOURSES")) {
+            if(Data.IsRegistered(userName).equals("Student"))
             //adds ACK 11 and the array of the courses that the userName is registered to.
-            return "ACK " + Data.coursesRegisteredArr(userName);
+                return "ACK " + Data.coursesRegisteredArr(userName);
+            return "ERROR";
         }
         //returns this string if the splitmsg[0] isn't correct
         return null;

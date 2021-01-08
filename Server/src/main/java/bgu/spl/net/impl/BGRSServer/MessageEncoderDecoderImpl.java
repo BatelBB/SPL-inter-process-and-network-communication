@@ -121,27 +121,28 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<String> 
 
         List<byte[]> list = new ArrayList<>();
         String[] splitmsg = message.split(" ");
+        int numOfOptionalBytes = 0;
         if (splitmsg[0].equals("ACK")) {
             byte[] ackByte = shortToBytes((short) 12);
             for (int i = 1; i < splitmsg.length; i++) {//gets the optional part of the ACK message
                 list.add(splitmsg[i].getBytes(StandardCharsets.UTF_8));
             }
             int byteResultArrLen = opcodeByteArr.length + ackByte.length;
-            if (splitmsg.length > 2) {
+            if (splitmsg.length > 1) {
                 lenEncode = 1;
-                for (int i = 0; i < lenEncode && !list.isEmpty(); i++) {
+                for (int i = 0; i < lenEncode && i<list.size(); i++) {
                     for (int j = 0; j < list.get(i).length; j++) {
                         pushEncodeByte(list.get(i)[j]);
-                        byteResultArrLen++;
+                        numOfOptionalBytes++;
                     }
-                    list.remove(0);
+                    //list.remove(0);
                 }
             }
-            byteResultArr = new byte[byteResultArrLen+1];
+            byteResultArr = new byte[byteResultArrLen+1+numOfOptionalBytes];
             System.arraycopy(ackByte, 0, byteResultArr, 0, 2);
             System.arraycopy(opcodeByteArr, 0, byteResultArr, 2, 2);
-            if (splitmsg.length > 2)
-                System.arraycopy(ackOptionalMsg, 0, byteResultArr, 4, ackOptionalMsg.length);
+            if (splitmsg.length > 1)//checks if there is an optional message
+                System.arraycopy(ackOptionalMsg, 0, byteResultArr, 4, numOfOptionalBytes);
             byteResultArr[byteResultArr.length-1] = '\0';
         } else {//ERROR message
             byte[] errorByte = shortToBytes((short) 13);
@@ -149,9 +150,7 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<String> 
             System.arraycopy(errorByte, 0, byteResultArr, 0, 2);
             System.arraycopy(opcodeByteArr, 0, byteResultArr, 2, 2);
         }
-        for(int i=0; i<byteResultArr.length; i++){
-            System.out.println(byteResultArr[i]);
-        }
+
         return byteResultArr;
     }
 

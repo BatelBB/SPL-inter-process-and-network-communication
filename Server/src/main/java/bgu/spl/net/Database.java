@@ -154,6 +154,7 @@ public class Database {
 
     //returns a string of the an array of the courses that the student registered to
     public String coursesRegisteredArr(String name) {
+
         String coursesArr = "[" + StudentCourses(name) + "]";
         return coursesArr.replaceAll(" ", ",");
     }
@@ -192,9 +193,9 @@ public class Database {
     //returns true if it registered the student to the course, false if it couldn't register
     public boolean registerStudentToCourse(String StudentName, int Course) {
         boolean exist = false;
-        //checks if the course exists, if the course isn't full, if the user loggedIn and if the student is registered
-        if (CourseMap.containsKey(Course) && !IsCourseFull(Course) && isUserLoggedIn(StudentName) && IsRegistered(StudentName).equals("Student")) {
-            System.out.println("ENTERED THE REGISTERSTUDENTCOURSE FIRST IF" + StudentName+ Course);
+        //checks if the course exists, if the course isn't full, if the user loggedIn and if it's a student
+        if (CourseMap.containsKey(Course) && !IsCourseFull(Course) && isUserLoggedIn(StudentName) && IsRegistered(StudentName).equals("Student") && !IsRegisteredStudent(StudentName, Course)) {
+            System.out.println("ENTERED THE REGISTERSTUDENTCOURSE FIRST IF " + StudentName + " "+ Course);
             exist = true;
             ArrayList<Integer> kdam = KdamCourses(Course, StudentName);
             List<Integer> studentKdam = StudentCourses(StudentName);

@@ -76,8 +76,7 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<String> 
                     case 11: //MYCOURSES
                         typeOfMessage = "MYCOURSES";
                         break;
-//                    case 12: //Terminate
-//                        typeOfMessage = "TERMINATE";
+
                 }
                 return popString();
             } else if (opcode == 8) { //STUDENTSTAT
@@ -123,9 +122,9 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<String> 
         String[] splitmsg = message.split(" ");
         int numOfOptionalBytes = 0;
         if (splitmsg[0].equals("ACK")) {
-            byte[] ackByte = shortToBytes((short) 12);
+            byte[] ackByte = shortToBytes((short)12);
             for (int i = 1; i < splitmsg.length; i++) {//gets the optional part of the ACK message
-                list.add(splitmsg[i].getBytes(StandardCharsets.UTF_8));
+                list.add(splitmsg[i].getBytes());
             }
             int byteResultArrLen = opcodeByteArr.length + ackByte.length;
             if (splitmsg.length > 1) {
@@ -142,7 +141,7 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<String> 
             System.arraycopy(ackByte, 0, byteResultArr, 0, 2);
             System.arraycopy(opcodeByteArr, 0, byteResultArr, 2, 2);
             if (splitmsg.length > 1)//checks if there is an optional message
-                System.arraycopy(ackOptionalMsg, 0, byteResultArr, 4, numOfOptionalBytes);
+                System.arraycopy(ackOptionalMsg, 1, byteResultArr, 4, numOfOptionalBytes);
             byteResultArr[byteResultArr.length-1] = '\0';
         } else {//ERROR message
             byte[] errorByte = shortToBytes((short) 13);
@@ -169,7 +168,7 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<String> 
     }
 
     private String popString() {
-        String result = "";
+        String result = new String();
         if (typeOfMessage.equals("ADMINREG") || typeOfMessage.equals("STUDENTREG") || typeOfMessage.equals("LOGIN") ||
                 typeOfMessage.equals("STUDENTSTAT") || typeOfMessage.equals("LOGOUT") || typeOfMessage.equals("MYCOURSES")) {
             ArrayList<String> stringOperations = new ArrayList<>();
@@ -186,6 +185,7 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<String> 
             result = typeOfMessage + " " + courseNum;
         }
         len = 0;
+        bytes = new byte[1 << 10];
         return result;
     }
 }

@@ -93,7 +93,7 @@ public class MessagingProtocolImpl implements MessagingProtocol<String> {
         }
         if (splitmsg[0].equals("COURSESTAT")) {
             //creates a string with the courses' name ([1]).
-            String returnMessage = "Course: (" + splitmsg[1] +") ";
+            String returnMessage = "\nCourse: (" + splitmsg[1] +") ";
             //returns ERROR 7 if the userName is registered and that it's a student, and if the course doesn't exists
             if(Data.IsRegistered(userName).equals("Student")||Data.courseName(Integer.parseInt(splitmsg[1]))==null)
                 return "ERROR";
@@ -104,7 +104,7 @@ public class MessagingProtocolImpl implements MessagingProtocol<String> {
             //gets an int of the course limit size
             int courseSize = Data.numOfStudentsInCourse(Integer.parseInt(splitmsg[1]));
             //adds to the string the ints that were just created
-            returnMessage += "Seats Available: " + registeredStudent + "/" + courseSize+"\n";
+            returnMessage += "Seats Available: " + (courseSize - registeredStudent) + "/" + courseSize+"\n";
             //creates a string that contains an array of the registered student of the specific course
             String studentRegistered = Data.studentRegisteredArr(Integer.parseInt(splitmsg[1]));
             //adds to the string the array

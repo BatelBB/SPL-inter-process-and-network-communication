@@ -68,46 +68,51 @@ bool ConnectionHandler::getLine(std::string& line, bool& terminate) {
     char ch;
     vector<char> vecBytes;
     char opcodeArr[2];
+    char optionalMessageBytes[2];
     short opcode = 0;
+    short optionalMessage = 0;
     try {
         do {
             if (!getBytes(&ch, 1)) {
                 return false;
             }
             vecBytes.push_back(ch);
-            
-            if (vecBytes.size() == 2) {
+
+            if (vecBytes.size() == 4) {
                 opcodeArr[0] = vecBytes[0];
                 opcodeArr[1] = vecBytes[1];
+                optionalMessageBytes[0] = vecBytes[2];
+                optionalMessageBytes[1] = vecBytes[3];
                 opcode = bytesToShort(opcodeArr);
-            }
-		if(opcode==13&&vecBytes.size()==4){
-                break;
+                optionalMessage = bytesToShort(optionalMessageBytes);
+                if(opcode == 13){
+                    break;
+                }
             }
         } while ('\0' != ch || vecBytes.size()<=4);
     } catch (std::exception &e) {
         std::cerr << "recv failed2 (Error: " << e.what() << ')' << std::endl;
         return false;
     }
+    if(opcode != 12 && opcode != 13){
+        return false;
+    }
     if (opcode == 12) { //ACK reply message
-        char bytesMessage[] = {vecBytes[2], vecBytes[3]};
-        short shortMessage = bytesToShort(bytesMessage);
+         line = "ACk " + std::to_string(optionalMessage);
+
         //ACK message after logout
-        if (shortMessage == 4) {
-            line = "TERMINATE";
+        if (optionalMessage == 4) {
             terminate = true;
-        } else {
-            line = "ACk " + std::to_string(shortMessage);
+        }
+        if(vecBytes.size()>5){
+            line += "\n";
             for (unsigned i = 4; i < vecBytes.size(); i++) {
                 line.append(1, vecBytes[i]);//takes the <optional> part of the ack message and turns it into a string
             }
         }
+
     } else if (opcode == 13) {
-        char bytesMessage[] = {vecBytes[2], vecBytes[3]};
-        short shortMessage = bytesToShort(bytesMessage);
-        line = "ERROR " + std::to_string(shortMessage);
-    } else {
-        return false;
+        line = "ERROR " + std::to_string(optionalMessage);
     }
     return true;
 }
@@ -136,7 +141,7 @@ bool ConnectionHandler::sendLine(std::string &line) {
     if ((opcode == 1) | (opcode == 2) | (opcode == 3) | (opcode == 8)) {
         std::replace(line.begin(), line.end(), ' ', '\0');
         line += '\0';
-        
+
         resultBytes = sendBytes(line.c_str(), line.length());
         if (resultBytes == false) {
             return false;

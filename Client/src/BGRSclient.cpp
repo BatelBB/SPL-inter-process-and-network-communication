@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
             break;
         }
 
-
+	std::cout << answer << std::endl;
         // A C string must end with a 0 char delimiter.  When we filled the answer buffer from the socket
         // we filled up to the \n char - we must make sure now that a 0 char is also present. So we truncate last character.
         if (terminate) {
@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
             std::cout << "Exiting...\n" << std::endl;
             break;
         }
-        std::cout << answer << std::endl;
+        
     }
     inputWorkingThread.join();
     return 0;

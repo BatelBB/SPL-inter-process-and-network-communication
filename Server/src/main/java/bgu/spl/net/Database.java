@@ -65,9 +65,6 @@ public class Database {
                 String course = CoursesFile.nextLine();
                 //Take the next line and split it at all the points there's |
                 String[] splitCourse = course.split("\\|");
-                for(int i=0; i<splitCourse.length; i++) {
-                    System.out.println(splitCourse[i]);
-                }
                 //takes the string[] of courses and creates a new Course
                 Course CurrentCourse = new Course(splitCourse);
                 CourseList.add(CurrentCourse);
@@ -90,8 +87,6 @@ public class Database {
     public boolean setNewUser(String UserType, String Name, String Password) {
         if (IsRegistered(Name) == null) {
             User newUser = new User(Name, Password, false);
-            for(int i =0; i<CourseList.size();i++)
-                System.out.println(CourseList.get(i).getCourseNum());
             UsersMap.get(UserType).add(newUser);
             //if the user was added
             return true;
@@ -153,8 +148,8 @@ public class Database {
 
     //return a string of an array of the students that registered to the course required
     public String studentRegisteredArr(int course) {
-        String studentsArr = "[" + CourseStat(course) + "]";
-        return studentsArr.replaceAll(" ", ",");
+        String studentsArr = "" + CourseStat(course) + "";
+        return studentsArr.replaceAll(" ", "");
     }
 
     //returns a string of the an array of the courses that the student registered to
@@ -198,8 +193,7 @@ public class Database {
     public boolean registerStudentToCourse(String StudentName, int Course) {
         boolean exist = false;
         //checks if the course exists, if the course isn't full, if the user loggedIn and if the student is registered
-        //if (CourseMap.containsKey(Course) && !IsCourseFull(Course) && isUserLoggedIn(StudentName) && IsRegistered(StudentName).equals("Student")) {
-            if(CourseMap.containsKey(Course)){
+        if (CourseMap.containsKey(Course) && !IsCourseFull(Course) && isUserLoggedIn(StudentName) && IsRegistered(StudentName).equals("Student")) {
             System.out.println("ENTERED THE REGISTERSTUDENTCOURSE FIRST IF" + StudentName+ Course);
             exist = true;
             ArrayList<Integer> kdam = KdamCourses(Course, StudentName);
@@ -214,6 +208,7 @@ public class Database {
             if (exist) {
                 System.out.println("EXIST IS TRUE");
                 CourseMap.get(Course).add(StudentName);
+                java.util.Collections.sort(CourseMap.get(Course));
             }
         }
         //if it stayed true it registered and returns true, if it didn't find the kdam in the students kdam list then it's false

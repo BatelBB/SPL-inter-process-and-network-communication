@@ -123,7 +123,7 @@ bool ConnectionHandler::sendLine(std::string &line) {
 
     //if opcodeIndex found a space, takes the opcode from the rest of the sentence
     if (opcodeIndex != string::npos) {
-        opcodeString = line.substr(0, line.find(" "));
+        opcodeString = line.substr(0, opcodeIndex);
         line = line.substr(opcodeIndex + 1, line.length() - opcodeIndex);
     }
     short opcode = stringToOpcode(opcodeString);
@@ -131,29 +131,46 @@ bool ConnectionHandler::sendLine(std::string &line) {
         return false;
     }
 
-    char bytesArray[2];
-    shortToBytes(opcode, bytesArray);
-    bool resultBytes = sendBytes(bytesArray, 2);
-    if (resultBytes == false) {
-        return false;
-    }
+
     //string messages
     if ((opcode == 1) | (opcode == 2) | (opcode == 3) | (opcode == 8)) {
+        int lineLength = line.length()+1;
         std::replace(line.begin(), line.end(), ' ', '\0');
         line += '\0';
 
-        resultBytes = sendBytes(line.c_str(), line.length());
-        if (resultBytes == false) {
-            return false;
+        const char* bytesString = line.c_str();
+        unsigned mLength = 2+lineLength;
+        char mBytes[mLength];
+        shortToBytes(opcode,mBytes);
+        for(unsigned int i=2;i<mLength;i++){
+              mBytes[i]=bytesString[i-2];
         }
+        bool resultBytes=sendBytes(mBytes,mLength);
+        if (resultBytes == false) {
+                return false;
+       }
+
         //course messages
     } else if ((opcode == 5) | (opcode == 6) | (opcode == 7) | (opcode == 9) | (opcode == 10)) {
         short courseShort = short(atoi(line.c_str()));
         char bytesArray[2];
         shortToBytes(courseShort, bytesArray);
-        bool resultBytes = sendBytes(bytesArray, 2);
+        int mLength = 4;
+        char mBytes[mLength];
+        shortToBytes(opcode,mBytes);
+        mBytes[2]=bytesArray[0];
+        mBytes[3]=bytesArray[1];
+        bool resultBytes = sendBytes(mBytes, mLength);
         if (resultBytes == false) {
             return false;
+        }
+    }
+    else if((opcode == 11) | (opcode == 4)){
+        char opcodeChar[2];
+        shortToBytes(opcode,opcodeChar);
+        bool resultBytes=sendBytes(opcodeChar,2);
+        if (resultBytes == false) {
+             return false;
         }
     }
     return true;

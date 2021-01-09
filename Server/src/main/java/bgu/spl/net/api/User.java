@@ -31,9 +31,4 @@ public class User {
     public boolean getLoggedIn(){
         return this.loggedIn;
     }
-
-
-//    public boolean PasswordCheck(int Pass) {
-//        return password == Pass;
-//    }
 }

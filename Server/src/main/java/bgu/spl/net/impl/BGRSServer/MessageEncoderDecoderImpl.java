@@ -168,20 +168,24 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<String> 
     }
 
     private String popString() {
-        String result = new String();
+        String result = "";
         if (typeOfMessage.equals("ADMINREG") || typeOfMessage.equals("STUDENTREG") || typeOfMessage.equals("LOGIN") ||
                 typeOfMessage.equals("STUDENTSTAT") || typeOfMessage.equals("LOGOUT") || typeOfMessage.equals("MYCOURSES")) {
-            ArrayList<String> stringOperations = new ArrayList<>();
-            // start from index 2 because the first 2 bytes are opCodes
-            for (int i = 2, stringStart = 2; i < len; i++) {
-                if (bytes[i] == '\0') { // end of string operation
-                    stringOperations.add(new String(bytes, stringStart, i - 1, StandardCharsets.UTF_8));
-                    stringStart = i + 1;
+            ArrayList<String> decodedMessage = new ArrayList<>();
+            for (int i = 2, messageStart = 2; i < len; i++) {
+                if (bytes[i] == '\0') {
+                    decodedMessage.add(new String(bytes, messageStart, i - messageStart, StandardCharsets.UTF_8));
+                    messageStart = i + 1;
                 }
             }
-            result = typeOfMessage + " " + stringOperations;
-        } else if (typeOfMessage.equals("COURSEREG") || typeOfMessage.equals("KDAMCHECK") || typeOfMessage.equals("COURSESTAT") || typeOfMessage.equals("ISREGISTERED") || typeOfMessage.equals("UNREGISTER")) {
+            result = typeOfMessage + " " + decodedMessage;
+        } else if (typeOfMessage.equals("COURSEREG") || typeOfMessage.equals("KDAMCHECK") || typeOfMessage.equals("COURSESTAT")
+                || typeOfMessage.equals("ISREGISTERED") || typeOfMessage.equals("UNREGISTER")) {
+            //System.out.println("BYTES[2]: " +bytes[2] +" BYTES[3]: " + bytes[3]);
             short courseNum = bytesToShort(new byte[]{bytes[2], bytes[3]});
+            //System.out.println("POPSTRING COURSENUM: " + courseNum);
+            if(courseNum < 0)
+                courseNum++;
             result = typeOfMessage + " " + courseNum;
         }
         len = 0;

@@ -1,0 +1,33 @@
+-23|WHY|[]|3
+1|METH|[]|1
+90|History of Magic|[]|500
+91|Astronomy|[]|500
+92|Abjuration|[]|500
+93|Conjuration|[]|500
+94|Enchantment|[]|500
+95|Evocation|[]|500
+96|Illusion|[]|500
+97|Transmutation|[]|500
+98|Herbology|[]|400
+99|Charms|[101,102,105,110]|300
+100|Dark Arts|[101,102]|150
+101|Defence Against the Dark Arts|[102]|150
+102|Potions|[92]|300
+103|Transfiguration|[101,109]|200
+104|Arithmancy|[101,102]|50
+105|Care of Magical Creatures|[101,90]|100
+106|Divination|[101,102]|300
+107|Muggle Studies|[101]|300
+108|Necromancy|[91,95]|50
+109|Advanced Arithmancy Studies|[114]|50
+110|Alchemy|[92,94,96,98]|200
+111|Ancient Studies|[101]|150
+112|Apparition|[109]|150
+113|Art|[]|150
+114|Flying|[101]|500
+115|Ghoul Studies|[90,91]|50
+116|Magical Theory|[101]|50
+117|Muggle Art|[109]|150
+118|Muggle Music|[109]|150
+119|Music|[]|150
+120|Xylomancy|[108]|20

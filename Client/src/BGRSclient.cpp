@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
             inputWorkingThread.interrupt();
             break;
         }
-    std::replace( answer.begin(), answer.end(), '_', ' '); // replace all 'x' to 'y'
+    std::replace( answer.begin(), answer.end(), '_', ' ');
 	std::cout << answer << std::endl;
         // A C string must end with a 0 char delimiter.  When we filled the answer buffer from the socket
         // we filled up to the \n char - we must make sure now that a 0 char is also present. So we truncate last character.

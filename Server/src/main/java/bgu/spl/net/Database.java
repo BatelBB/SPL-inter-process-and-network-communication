@@ -155,8 +155,8 @@ public class Database {
     //returns a string of the an array of the courses that the student registered to
     public String coursesRegisteredArr(String name) {
 
-        String coursesArr = "[" + StudentCourses(name) + "]";
-        return coursesArr.replaceAll(" ", ",");
+        String coursesArr = "" + StudentCourses(name) + "";
+        return coursesArr.replaceAll(" ", "");
     }
 
     //return a string of the course name if it's exist in the CourseList, if it's not returns null
@@ -207,7 +207,6 @@ public class Database {
             }
             //if exist stayed true than it adds the student to the courseMap
             if (exist) {
-                System.out.println("EXIST IS TRUE");
                 CourseMap.get(Course).add(StudentName);
                 java.util.Collections.sort(CourseMap.get(Course));
             }
@@ -219,11 +218,16 @@ public class Database {
     //returns whether or not the student is registered to the course
     public boolean IsRegisteredStudent(String StudentName, int Course) {
         return CourseMap.get(Course).contains(StudentName);
+
+    }
+    //returns whether or not the courses exists
+    public boolean isThereACourse(int Course){
+        return CourseMap.containsKey(Course);
     }
 
     //unregisters the student from the course
     public boolean Unregister(String StudentName, int Course) {
-        if (IsRegisteredStudent(StudentName, Course)) {
+        if (isThereACourse(Course)&&IsRegisteredStudent(StudentName, Course)) {
             CourseMap.get(Course).remove(StudentName);
             //returns true if the student was unregistered
             return true;
@@ -261,7 +265,7 @@ public class Database {
                 }
             }
         }
-        //returns false if the user isn't registered.
+        //returns false if the user isn't logged in.
         return false;
     }
 

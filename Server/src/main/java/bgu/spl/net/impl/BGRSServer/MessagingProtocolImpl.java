@@ -3,7 +3,6 @@ package bgu.spl.net.impl.BGRSServer;
 import bgu.spl.net.Database;
 import bgu.spl.net.api.MessagingProtocol;
 
-import java.util.Arrays;
 
 public class MessagingProtocolImpl implements MessagingProtocol<String> {
     private boolean shouldTerminate = false;
@@ -17,25 +16,20 @@ public class MessagingProtocolImpl implements MessagingProtocol<String> {
      */
     @Override
     public String process(String msg) {
-        System.out.println(msg);
         String[] splitmsg = msg.split(" ");
         for (int i=0; i < splitmsg.length; i++) {
             splitmsg[i] = splitmsg[i].replaceAll("\\[", "").replaceAll("]", "").replaceAll("\\s", "").replaceAll(",", "");
         }
-
         Database Data = Database.getInstance();
-
         if (splitmsg[0].equals("ADMINREG") || splitmsg[0].equals("STUDENTREG")) {//registration
             if(userName!=null)
                 return "ERROR";
-            System.out.println("ENTERED THE FIRST IF " + splitmsg[0] +" " +splitmsg[1]);
             if (splitmsg[0].equals("ADMINREG"))
                 splitmsg[0] = "Admin";
             else
                 splitmsg[0] = "Student";
             //if the setNewUser succeeded then returns true
             if (Data.setNewUser(splitmsg[0], splitmsg[1], splitmsg[2])) {//needs to check that there is a " " after the opcode
-                System.out.println("SETTED A NEW USER " + splitmsg[0] +" " +splitmsg[1]);
                 if (splitmsg[0].equals("Admin")) {
                     return "ACK";
                 } else {
@@ -51,10 +45,8 @@ public class MessagingProtocolImpl implements MessagingProtocol<String> {
             }
         }
         if (splitmsg[0].equals("LOGIN")) {
-            System.out.println("ENTERED LOGIN AREA");
             //calls the method isPassTheSame with the username ([1]) and the password ([2])
             if(userName==null&&!Data.isUserLoggedIn(splitmsg[1])&&Data.isPassTheSame(splitmsg[1],splitmsg[2])) {
-                System.out.println("PASSWORD IS THE SAME " + splitmsg[1] + " " + splitmsg[2]);
                 userName = splitmsg[1];
                 return "ACK";
             }
@@ -91,10 +83,11 @@ public class MessagingProtocolImpl implements MessagingProtocol<String> {
         }
         if (splitmsg[0].equals("COURSESTAT")) {
             //creates a string with the courses' name ([1]).
-            String returnMessage = "Course: (" + splitmsg[1] +") ";
+            String returnMessage = "Course:_(" + splitmsg[1] +")_";
             //returns ERROR 7 if the userName is registered and that it's a student, and if the course doesn't exists
-            if(userName==null||(Data.IsRegistered(userName).equals("Student")||Data.courseName(Integer.parseInt(splitmsg[1]))==null))
+            if(userName==null||Data.IsRegistered(userName).equals("Student")||Data.courseName(Integer.parseInt(splitmsg[1]))==null) {
                 return "ERROR";
+            }
             //adds the course number to the string
             returnMessage += Data.courseName(Integer.parseInt(splitmsg[1]))+"\n";
             //gets an int of the number of students that registered to the course
@@ -102,25 +95,26 @@ public class MessagingProtocolImpl implements MessagingProtocol<String> {
             //gets an int of the course limit size
             int courseSize = Data.numOfStudentsInCourse(Integer.parseInt(splitmsg[1]));
             //adds to the string the ints that were just created
-            returnMessage += "Seats Available: " + (courseSize - registeredStudent) + "/" + courseSize+"\n";
+            returnMessage += "Seats_Available:_" + (courseSize - registeredStudent) + "/" + courseSize+"\n";
             //creates a string that contains an array of the registered student of the specific course
             String studentRegistered = Data.studentRegisteredArr(Integer.parseInt(splitmsg[1]));
             //adds to the string the array
-            returnMessage += "Students Registered: " + studentRegistered;
+            returnMessage += "Students_Registered:_" + studentRegistered;
             //returns the message and the ACK 7
             return "ACK " + returnMessage;
         }
         if (splitmsg[0].equals("STUDENTSTAT")) {
             //returns ERROR 7 if the userName is a student and if the user that required isn't a student
-            if(userName==null||Data.IsRegistered(userName).equals("Student")||Data.IsRegistered(splitmsg[1])==null
-                    ||!Data.IsRegistered(splitmsg[1]).equals("Student"))
-                return "ERROR";
+            if (userName == null || Data.IsRegistered(userName).equals("Student") || Data.IsRegistered(splitmsg[1]) == null
+                    || !Data.IsRegistered(splitmsg[1]).equals("Student")){
+            return "ERROR";
+        }
             //adds the name of the student required to the string
-            String returnMessage = "Student: " + splitmsg[1]+"\n";
+            String returnMessage = "Student:_" + splitmsg[1]+"\n";
             //creates a string that contains an array of the courses of the student
             String courseRegistered = Data.coursesRegisteredArr(splitmsg[1]);
             //adds the array to the string
-            returnMessage += "Courses: " + courseRegistered;
+            returnMessage += "Courses:_" + courseRegistered;
             //returns the string with the ACK 8
             return "ACK " + returnMessage;
         }
@@ -159,3 +153,4 @@ public class MessagingProtocolImpl implements MessagingProtocol<String> {
         return shouldTerminate;
     }
 }
+

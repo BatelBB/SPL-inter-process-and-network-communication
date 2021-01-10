@@ -16,7 +16,7 @@ ConnectionHandler::~ConnectionHandler() {
 }
 
 bool ConnectionHandler::connect() {
-    std::cout << "Starting connect to "
+   std::cout << "Starting connect to "
               << host_ << ":" << port_ << std::endl;
     try {
         tcp::endpoint endpoint(boost::asio::ip::address::from_string(host_), port_); // the server endpoint
@@ -98,7 +98,7 @@ bool ConnectionHandler::getLine(std::string& line, bool& terminate) {
         return false;
     }
     if (opcode == 12) { //ACK reply message
-         line = "ACk " + std::to_string(optionalMessage);
+         line = "ACK " + std::to_string(optionalMessage);
 
         //ACK message after logout
         if (optionalMessage == 4) {
@@ -213,4 +213,5 @@ void ConnectionHandler::shortToBytes(short num, char* bytesArr)
     bytesArr[0] = ((num >> 8) & 0xFF);
     bytesArr[1] = (num & 0xFF);
 }
+
 

@@ -114,7 +114,7 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<String> 
      */
     @Override
     public byte[] encode(String message) {
-        System.out.println("ENTERED THE ENCODE AREA " +message);
+
         byte[] byteResultArr = null; //eventually will return this byte array
         byte[] opcodeByteArr = shortToBytes(localOpcode); //takes the opcode that was saved from the decoding process
 
@@ -181,9 +181,7 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<String> 
             result = typeOfMessage + " " + decodedMessage;
         } else if (typeOfMessage.equals("COURSEREG") || typeOfMessage.equals("KDAMCHECK") || typeOfMessage.equals("COURSESTAT")
                 || typeOfMessage.equals("ISREGISTERED") || typeOfMessage.equals("UNREGISTER")) {
-            //System.out.println("BYTES[2]: " +bytes[2] +" BYTES[3]: " + bytes[3]);
             short courseNum = bytesToShort(new byte[]{bytes[2], bytes[3]});
-            //System.out.println("POPSTRING COURSENUM: " + courseNum);
             if(courseNum < 0)
                 courseNum++;
             result = typeOfMessage + " " + courseNum;
@@ -193,3 +191,4 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<String> 
         return result;
     }
 }
+

@@ -59,7 +59,6 @@ int main(int argc, char *argv[]) {
         // we filled up to the \n char - we must make sure now that a 0 char is also present. So we truncate last character.
         if (terminate) {
             inputWorkingThread.interrupt();
-            std::cout << "Exiting...\n" << std::endl;
             break;
         }
 
@@ -67,5 +66,6 @@ int main(int argc, char *argv[]) {
     inputWorkingThread.join();
     return 0;
 }
+
 
 

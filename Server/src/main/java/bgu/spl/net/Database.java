@@ -8,6 +8,8 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+
+
 /**
  * Passive object representing the bgu.spl.net.Database where all courses and users are stored.
  * <p>
@@ -74,12 +76,13 @@ public class Database {
             CourseList.forEach(course ->
                     course.getKdamCoursesList().sort(Comparator.comparingInt(coursesOrder::indexOf)));
 
-
+            CoursesFile.close();
         } catch (IOException e) {
             e.printStackTrace();
             return false;
         }
         ;
+
         return true;
     }
 
@@ -99,12 +102,12 @@ public class Database {
     public String IsRegistered(String Name) {
         //checks if its in students
         for (int i = 0; i < UsersMap.get("Student").size(); i++) {
-            if (Name.equals(UsersMap.get("Student").get(i).getUserName()))
+            if (UsersMap.get("Student") != null && Name.equals(UsersMap.get("Student").get(i).getUserName()))
                 return "Student";
         }
         //checks if it's an Admin
         for (int i = 0; i < UsersMap.get("Admin").size(); i++) {
-            if (Name.equals(UsersMap.get("Admin").get(i).getUserName()))
+            if (UsersMap.get("Admin") != null && Name.equals(UsersMap.get("Admin").get(i).getUserName()))
                 return "Admin";
         }
         //return false if the name wasn't found registered
@@ -194,8 +197,8 @@ public class Database {
     public boolean registerStudentToCourse(String StudentName, int Course) {
         boolean exist = false;
         //checks if the course exists, if the course isn't full, if the user loggedIn and if it's a student
-        if (CourseMap.containsKey(Course) && !IsCourseFull(Course) && isUserLoggedIn(StudentName) && IsRegistered(StudentName).equals("Student") && !IsRegisteredStudent(StudentName, Course)) {
-            System.out.println("ENTERED THE REGISTERSTUDENTCOURSE FIRST IF " + StudentName + " "+ Course);
+        if (CourseMap.containsKey(Course) && !IsCourseFull(Course) && isUserLoggedIn(StudentName) &&
+                IsRegistered(StudentName).equals("Student") && !IsRegisteredStudent(StudentName, Course)) {
             exist = true;
             ArrayList<Integer> kdam = KdamCourses(Course, StudentName);
             List<Integer> studentKdam = StudentCourses(StudentName);
@@ -208,7 +211,15 @@ public class Database {
             //if exist stayed true than it adds the student to the courseMap
             if (exist) {
                 CourseMap.get(Course).add(StudentName);
-                java.util.Collections.sort(CourseMap.get(Course));
+                for (int i = 0; i < CourseMap.get(Course).size(); i++) {
+                    for (int j = CourseMap.get(Course).size() - 1; j > i; j--) {
+                        if (CourseMap.get(Course).get(i).compareTo(CourseMap.get(Course).get(j)) > 0) {
+                            String tmp = CourseMap.get(Course).get(i);
+                            CourseMap.get(Course).set(i,CourseMap.get(Course).get(j));
+                            CourseMap.get(Course).set(j,tmp);
+                        }
+                    }
+                }
             }
         }
         //if it stayed true it registered and returns true, if it didn't find the kdam in the students kdam list then it's false
@@ -220,14 +231,15 @@ public class Database {
         return CourseMap.get(Course).contains(StudentName);
 
     }
+
     //returns whether or not the courses exists
-    public boolean isThereACourse(int Course){
+    public boolean isThereACourse(int Course) {
         return CourseMap.containsKey(Course);
     }
 
     //unregisters the student from the course
     public boolean Unregister(String StudentName, int Course) {
-        if (isThereACourse(Course)&&IsRegisteredStudent(StudentName, Course)) {
+        if (isThereACourse(Course) && IsRegisteredStudent(StudentName, Course)) {
             CourseMap.get(Course).remove(StudentName);
             //returns true if the student was unregistered
             return true;
@@ -279,3 +291,4 @@ public class Database {
     }
 
 }
+
